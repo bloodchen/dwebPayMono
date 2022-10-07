@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>WalletPay Demo</title>
+    <meta charset="UTF-8">
+    <script src="wapp.min.js"></script>
+
+</head>
+
+<body>
+    <h2>Demo WalletPay</h2>
+    <br><br>
+    <button onclick="onConnectWallet()"> Connect Wallet</button>
+    <button onclick="onBalance()"> getBalance</button>
+    <button onclick="onTransaction()"> sendTransaction</button>
+    <div id="pay" style="width:300px;height:250px">
+    </div>
+    <script type="text/javascript">
+        const wpay = new WalletApp();
+        wpay.init({ appid: "app.nbdomain.b", nbNode: "http://localhost:9001", debug: true })
+        console.log(wpay)
+        wpay.on('session_event', async (event) => {
+            const name = event.name
+            if (name === 'approved') {
+                console.log("permission approved")
+                const ret = await wpay.getBalance('dfasfasdf', 'ar')
+                console.log("getBalance:", ret)
+            }
+        })
+        wpay.on('session_request', async (request) => {
+
+        })
+        wpay.onElse(async (eName, ...argc) => {
+            console.log("got event from wapp", eName, ...argc)
+            if (eName === "closed") {
+                // wpay.disconnect()
+            }
+        })
+        async function onConnectWallet() {
+            //wpay.test()
+            console.log(await wpay.connect({ permissions: "chains:['bsv','ar']" }))
+        }
+        async function onBalance() {
+            const ret = await wpay.getBalance('dfasfasdf', 'ar')
+            console.log("getBalance:", ret)
+        }
+        async function onTransaction() {
+            const ret = await wpay.sendTransaction({ data: 'abc', to: { address: "dffasf", value: 1000 } }, 'ar')
+            console.log("sendTransaction:", ret)
+        }
+
+    </script>
+</body>
+
+</html>

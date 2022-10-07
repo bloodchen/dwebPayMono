@@ -1,0 +1,59 @@
+<html>
+
+<head>
+    <title>WalletHost Demo</title>
+    <meta charset="UTF-8">
+    <script src="wallet.min.js"></script>
+
+</head>
+
+<body>
+    <h2>Demo WalletPay</h2>
+    <br><br>
+    <button onclick="onConnectApp()"> Connect App</button>
+    <button onclick="onNotify()"> Notify App</button>
+    <input type="text" name="" id="peerid" />
+    </div>
+    <script type="text/javascript">
+        const whost = new WalletHost();
+        whost.init({})
+        whost.on('session_request', async (request) => {
+            const { name, para } = request
+            console.log("got request name:", name, " para:", para)
+            if (name === 'getBalance') {
+                const account = para[0], chain = para[1]
+                return { code: 0, balance: 1223332 }
+            }
+            if (name === 'pair_request') {
+                const appInfo = para[0]
+                return { code: 0 }
+            }
+            if (name === 'sendTransaction') {
+                const body = para[0]
+                return { code: 0 }
+            }
+        })
+        whost.on('session_event', async (event) => {
+            const name = event.name
+            if (name === 'approved') {
+
+            }
+        })
+        whost.onElse(async (eName, para) => {
+            console.log("got event from whost", eName, para)
+            if (eName === "closed") {
+                // wpay.disconnect()
+            }
+        })
+        async function onNotify() {
+            whost.notify('switch_account', { chain: 'ar', account: 'jklljufacs' })
+        }
+        async function onConnectApp() {
+            const peerid = document.querySelector('#peerid').value;
+            whost.pair(peerid)
+        }
+
+    </script>
+</body>
+
+</html>

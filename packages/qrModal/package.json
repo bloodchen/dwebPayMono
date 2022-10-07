@@ -1,0 +1,32 @@
+{
+  "name": "@walletpay/qrModal",
+  "version": "1.0.2",
+  "description": "qrmodal for walletpay",
+  "main": "qrmodal.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "walletpay"
+  ],
+  "files": [
+    "qrmodal.min.js",
+    "src/qrmodal.js"
+  ],
+  "author": "bloodchen",
+  "license": "MIT",
+  "dependencies": {
+    "core-js": "^3.25.0",
+    "cross-fetch": "^3.1.5",
+    "regenerator-runtime": "^0.13.9",
+    "rollup-plugin-version-injector": "^1.3.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.13",
+    "@babel/preset-env": "^7.18.10",
+    "@rollup/plugin-babel": "^5.3.1",
+    "@rollup/plugin-commonjs": "^21.1.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "rollup-plugin-terser": "^6.1.0"
+  }
+}
