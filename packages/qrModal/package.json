@@ -1,13 +1,13 @@
 {
-  "name": "@walletpay/qrModal",
+  "name": "@dwebpay/qrModal",
   "version": "1.0.2",
-  "description": "qrmodal for walletpay",
+  "description": "qrmodal for dwebpay",
   "main": "qrmodal.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "walletpay"
+    "dwebpay"
   ],
   "files": [
     "qrmodal.min.js",

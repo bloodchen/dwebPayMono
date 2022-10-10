@@ -1,20 +1,20 @@
 var isBrowser = isBrowser || new Function('try {return this===window;}catch(e){ return false;}');
 const g_isBrowser = isBrowser();
 
-import qrModal from "@walletpay/qrModal"
+import qrModal from "@dwebpay/qrModal"
 import nbpeer from "nbpeer"
 
 let log = console.log;
 export default class WalletApp {
-    async init({ appid, nbNode, debug }) {
+    async init({ appid, bridge, debug }) {
         this.appid = appid
-        this.nbNode = nbNode
+        this.nbNode = bridge
         this.debug = debug
         this.eventCB = {}
         this.id = Date.now().toString(36)
         this.nbpeer = new nbpeer()
         await this.nbpeer.init()
-        this.modal = new qrModal({ nbNode })
+        this.modal = new qrModal({ bridge })
         this.nbpeer.on('session_event', (event) => {
             if (event.name === 'approved') {
                 this.desid = event.para.wallet_id
@@ -48,7 +48,6 @@ export default class WalletApp {
                             vbox.connect(options)
                         }
                     }
-                    //return await this._fire(event, para)
                 })
             }
 
@@ -59,8 +58,40 @@ export default class WalletApp {
     async getBalance(address, chain) {
         return await this.getResult('getBalance', address, chain)
     }
-    async sendTransaction(option, chain) {
-        return await this.getResult('sendTransaction', option, chain)
+    /**
+     * 
+     * @param {*} option:
+     * {    
+     *      data:['abc',123] //optional
+     *      to:[address:'fafasf',value:100] //optional
+     *      chain:chain //required
+     * } 
+     * @returns (json)
+     * {
+     *      code:0 //successful
+     *      msg:"successful" //error message or success
+     * }
+     */
+    async sendTransaction(option) {
+        return await this.getResult('sendTransaction', option)
+    }
+    /**
+     * 
+     * @param {*} option :
+     * {
+     *  signer:(string)address
+     *  message:(string)msg
+     *  chain:(string)chain
+     * }
+     * @returns (json)
+     * {
+     *      code:0 //successful
+     *      msg:"successful" //(string) error message or success
+     *      sig:"" //(string) signature
+     * }
+     */
+    async signMessage(option) {
+        return await this.getResult('signMessage', option)
     }
     async getResult(...args) {
         const func = args[0]
@@ -132,10 +163,5 @@ export default class WalletApp {
         }
         return false
     }
-    test() {
-        const pay = new qrModal()
-        pay.show("wp:dfafsdf&id=123&key=fsfsf", (event, para) => {
-            console.log(event, para)
-        })
-    }
+
 }

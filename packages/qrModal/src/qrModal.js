@@ -32,6 +32,7 @@ const payPopupHtml = `
   width:300px;
   height:300px;
   margin:20px auto;
+  display:block;
 }
 ._wallet{
   width:140px;
@@ -114,9 +115,10 @@ input[type="radio"]:checked + ._tab-control {
   
     <div class="_tab-content">
       <div id="_tab-panel-1" class="_tab-panel">
-        <div class="_subTitle" tid="title_qr_panel">Scan QR code with an OPay compatible wallet 
+        <div class="_subTitle" tid="title_qr_panel">Scan QR code with an dwebPay compatible wallet 
         </div>
         <img id="_opay_qrcode" class="_qrcode"></img>
+        <a href="#" id="_copy_clipboard" tid="_copy_clipboard">Copy to Clipboard</a>
       </div>
       <div id="_tab-panel-2" class="_tab-panel">
         <div class="_subTitle" tid="title_desktop_panel">
@@ -133,8 +135,8 @@ input[type="radio"]:checked + ._tab-control {
 import { Util } from "./util"
 const scriptPath = document && document.currentScript.src;
 export default class qrModal {
-  constructor(nbNode) {
-    this.nbNode = nbNode
+  constructor(bridge) {
+    this.nbNode = bridge
   }
   async show(uri, callback) {
     const self = this
@@ -171,6 +173,11 @@ export default class qrModal {
       this.closePopup()
       callback("closed")
     });
+    this.onEvent('click', "#_copy_clipboard", () => {
+      navigator.clipboard.writeText(uri).then(() => {
+        alert('Copied')
+      });
+    })
     this.callback = callback
   }
   onEvent(eventType, selector, callback) {
@@ -202,8 +209,9 @@ export default class qrModal {
       vinstall: "未检测到，点击安装",
       login: "登录",
       next: "下一步",
-      title_qr_panel: "请使用OPay兼容钱包扫描",
-      title_desktop_panel: "请点击钱包"
+      title_qr_panel: "请使用 dwebPay 兼容钱包扫描",
+      title_desktop_panel: "请点击钱包",
+      _copy_clipboard: "复制到剪贴板"
     }
     var items = document.getElementById(parentID).querySelectorAll("[tid]");
     for (let i = 0; i < items.length; i++) {

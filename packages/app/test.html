@@ -9,7 +9,7 @@
 </head>
 
 <body>
-    <h2>Demo WalletPay</h2>
+    <h2>Demo dwebPay</h2>
     <br><br>
     <button onclick="onConnectWallet()"> Connect Wallet</button>
     <button onclick="onBalance()"> getBalance</button>
@@ -18,7 +18,7 @@
     </div>
     <script type="text/javascript">
         const wpay = new WalletApp();
-        wpay.init({ appid: "app.nbdomain.b", nbNode: "http://localhost:9001", debug: true })
+        wpay.init({ appid: "app.nbdomain.b", bridge: "http://localhost:9001", debug: true })
         console.log(wpay)
         wpay.on('session_event', async (event) => {
             const name = event.name

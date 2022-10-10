@@ -1,5 +1,5 @@
 {
-  "name": "@walletpay/wallet",
+  "name": "@dwebpay/wallet",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,7 +9,7 @@
   "keywords": [
     "nbdomain",
     "domain",
-    "walletpay"
+    "dwebpay"
   ],
   "files": [
     "wallet.min.js",
