@@ -17,14 +17,14 @@
     <script type="text/javascript">
         const whost = new WalletHost();
         whost.init({})
-        whost.on('session_request', async (request) => {
+        whost.on('session_request', async (from_id, request) => {
             const { name, para } = request
             console.log("got request name:", name, " para:", para)
             if (name === 'getBalance') {
                 const account = para[0], chain = para[1]
                 return { code: 0, balance: 1223332 }
             }
-            if (name === 'pair_request') {
+            if (name === 'pair_request') { //return code:0 to approve
                 const appInfo = para[0]
                 return { code: 0 }
             }
@@ -33,11 +33,9 @@
                 return { code: 0 }
             }
         })
-        whost.on('session_event', async (event) => {
+        whost.on('session_notify', async (event) => {
             const name = event.name
-            if (name === 'approved') {
 
-            }
         })
         whost.onElse(async (eName, para) => {
             console.log("got event from whost", eName, para)

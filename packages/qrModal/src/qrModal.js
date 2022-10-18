@@ -115,10 +115,11 @@ input[type="radio"]:checked + ._tab-control {
   
     <div class="_tab-content">
       <div id="_tab-panel-1" class="_tab-panel">
+        <p id="_debug" style="color:red;">DEBUG (not for production)</p>
         <div class="_subTitle" tid="title_qr_panel">Scan QR code with an dwebPay compatible wallet 
         </div>
         <img id="_opay_qrcode" class="_qrcode"></img>
-        <a href="#" id="_copy_clipboard" tid="_copy_clipboard">Copy to Clipboard</a>
+        <a href="#" id="_copy_clipboard" tid="_copy_clipboard">Copy to Clipboard</a><span id='_check_success' style="display:none;">✌</span>
       </div>
       <div id="_tab-panel-2" class="_tab-panel">
         <div class="_subTitle" tid="title_desktop_panel">
@@ -135,8 +136,9 @@ input[type="radio"]:checked + ._tab-control {
 import { Util } from "./util"
 const scriptPath = document && document.currentScript.src;
 export default class qrModal {
-  constructor(bridge) {
+  constructor({ bridge, debug }) {
     this.nbNode = bridge
+    this.debug = debug
   }
   async show(uri, callback) {
     const self = this
@@ -162,7 +164,9 @@ export default class qrModal {
     self.translate("_opay_payPopup");
     await self.genQRImg(uri, "_opay_qrcode")
 
-
+    if (!self.debug) {
+      document.querySelector("#_debug").style.display = 'none'
+    }
     //vbox button
     this.onEvent('click', "#_vboxWallet", () => {
       callback("clickWallet", "vbox")
@@ -175,7 +179,10 @@ export default class qrModal {
     });
     this.onEvent('click', "#_copy_clipboard", () => {
       navigator.clipboard.writeText(uri).then(() => {
-        alert('Copied')
+        document.querySelector('#_check_success').style.display = 'inline'
+        setTimeout(() => {
+          document.querySelector('#_check_success').style.display = 'none'
+        }, 3000)
       });
     })
     this.callback = callback

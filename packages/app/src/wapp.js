@@ -6,38 +6,48 @@ import nbpeer from "nbpeer"
 
 let log = console.log;
 export default class WalletApp {
-    async init({ appid, bridge, debug }) {
+    async init({ appid, bridge, debug = true }) {
         this.appid = appid
         this.nbNode = bridge
         this.debug = debug
         this.eventCB = {}
         this.id = Date.now().toString(36)
+        const res = await fetch(bridge + "/api/q/" + appid)
+        if (res.ok) {
+            this.meta = await res.json()
+        } else {
+            console.error("can't fetch:", appid)
+            return false
+        }
+        if (!debug) {
+
+        }
         this.nbpeer = new nbpeer()
         await this.nbpeer.init()
-        this.modal = new qrModal({ bridge })
-        this.nbpeer.on('session_event', (event) => {
+        this.modal = new qrModal({ bridge, debug })
+        this.nbpeer.on('session_notify', (wallet_id, event) => {
             if (event.name === 'approved') {
-                this.desid = event.para.wallet_id
-                this.nbpeer.setEncryptKey(event.para.key)
-                console.log('got wallet id:', this.desid)
+                //this.nbpeer.setEncryptKey(event.para.key)
+                console.log('got wallet id:', wallet_id)
                 this.modal.close()
             }
-            this._fire('session_event', event)
+            this._fire('session_notify', wallet_id, event)
         })
         this.nbpeer.onElse((eName, ...args) => {
             console.log("got nbpeer event:", eName, ...args)
             this._fire(eName, ...args)
         })
+        return true
     }
-    async connect({ permissions }) {
+    async connect(walletId, { permissions }) {
         const options = { id: this.id, appid: this.appid, permissions }
         let res = await this.createSession()
         if (res.code == 0) {
-            if (this.desid) {
-                res = await this.getResult('connectWallet', options)
+            if (walletId) {
+                res = await this.getResult(walletId, 'connectWallet', options)
                 console.log(res)
             }
-            if (res.code != 0 || !this.desid) {
+            if (res.code != 0 || !walletId) {
                 const url = await this.optionsToUrl(options)
                 const uri = `wp:${this.id}?node=${encodeURIComponent(this.nbNode)}&key=${this.nbpeer.getKey()}&path=${encodeURIComponent(url)}`
                 console.log(uri)
@@ -55,8 +65,8 @@ export default class WalletApp {
         return { code: 0 }
     }
 
-    async getBalance(address, chain) {
-        return await this.getResult('getBalance', address, chain)
+    async getBalance(walletId, address, chain) {
+        return await this.getResult(walletId, 'getBalance', address, chain)
     }
     /**
      * 
@@ -72,8 +82,8 @@ export default class WalletApp {
      *      msg:"successful" //error message or success
      * }
      */
-    async sendTransaction(option) {
-        return await this.getResult('sendTransaction', option)
+    async sendTransaction(walletId, option) {
+        return await this.getResult(walletId, 'sendTransaction', option)
     }
     /**
      * 
@@ -90,17 +100,17 @@ export default class WalletApp {
      *      sig:"" //(string) signature
      * }
      */
-    async signMessage(option) {
-        return await this.getResult('signMessage', option)
+    async signMessage(walletId, option) {
+        return await this.getResult(walletId, 'signMessage', option)
     }
-    async getResult(...args) {
+    async getResult(walletId, ...args) {
         const func = args[0]
         const para = args.slice(1)
         const request = { name: func, para }
-        if (this.desid === 'vbox') {
+        if (walletId === 'vbox') {
             return await vbox.invoke(func, ...para)
         }
-        const res = await this.nbpeer.send(this.desid, "session_request", request)
+        const res = await this.nbpeer.send(walletId, "session_request", request)
         return res
     }
     on(eventName, cb) {
@@ -132,36 +142,16 @@ export default class WalletApp {
         return res.ok ? getURL + options.id : null
     }
     async createSession() {
-        if (!this.relaySocket) {
-            await this.updateNode()
-        }
-        if (!this.relaySocket) return { code: 1, msg: "invalid or offline nbNode" }
         if (!this.nbpeer.isConnected()) {
-            const res = await this.nbpeer.create({ id: this.id, node: this.relaySocket, debug: this.debug })
+            const res = await this.nbpeer.create({ id: this.id, nbNode: this.nbNode, debug: this.debug })
             return res
         }
         return { code: 0 }
     }
-    notify(...argv) {
-        if (this.desid === 'vbox') {
+    notify(walletId, ...argv) {
+        if (walletId === 'vbox') {
             vbox.notify(...argv)
         }
-        this.desid && this.nbpeer.send(this.desid, 'notify', ...argv)
+        this.nbpeer.send(walletId, 'notify', ...argv)
     }
-    async updateNode(nbNode) {
-        if (!nbNode) nbNode = this.nbNode
-        let res = await fetch(nbNode + "/api/nodeinfo")
-        if (res.ok) {
-            const info = await res.json()
-            const pUrl = g_isBrowser ? new URL(nbNode) : URL.parse(url)
-            this.relaySocket = "ws://" + pUrl.hostname + ":" + (info.socketPort || 31415)
-            if (info.socketServer) {
-                relaySocket = "ws://" + info.socketServer + ":" + (info.socketPort || 31415)
-            }
-            this.nbNode = nbNode
-            return true
-        }
-        return false
-    }
-
 }

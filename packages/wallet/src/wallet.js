@@ -22,7 +22,7 @@ export default class WalletHost {
     }
     async connectApp(appInfo) {
         this.desid = appInfo.id
-        const ret = await this._fire('session_request', { name: 'pair_request', para: [appInfo] })
+        const ret = await this._fire('session_request', appInfo.id, { name: 'pair_request', para: [appInfo] })
         if (ret.code != 0) {
             this.notify('rejected')
             return ret
@@ -40,12 +40,10 @@ export default class WalletHost {
         const url_id = parseUrl.pathname
         const nbNode = parseUrl.searchParams.get('node')
         const path = parseUrl.searchParams.get('path')
-        const key = parseUrl.searchParams.get('key')
         if (nbNode) {
             this.nbNode = nbNode
-            await this.updateNode()
-            const r = await this.nbpeer.create({ id: this.id, node: this.relaySocket, debug: true })
-            this.nbpeer.setEncryptKey(key)
+            const r = await this.nbpeer.create({ id: this.id, nbNode: this.nbNode, debug: true })
+            await this.nbpeer.connectTo(url_id)
             if (r.code != 0) {
                 return { code: 1, msg: "cannot connect to node:", nbNode }
             }
@@ -72,7 +70,7 @@ export default class WalletHost {
         return res
     }
     notify(name, para) {
-        this.desid && this.nbpeer.send(this.desid, 'session_event', { name, para })
+        this.desid && this.nbpeer.send(this.desid, 'session_notify', { name, para })
     }
     on(eventName, cb) {
         this.eventCB[eventName] = cb
@@ -90,21 +88,7 @@ export default class WalletHost {
         }
         return ret
     }
-    async updateNode(nbNode) {
-        if (!nbNode) nbNode = this.nbNode
-        let res = await fetch(nbNode + "/api/nodeinfo")
-        if (res.ok) {
-            const info = await res.json()
-            const pUrl = g_isBrowser ? new URL(nbNode) : URL.parse(url)
-            this.relaySocket = "ws://" + pUrl.hostname + ":" + (info.socketPort || 31415)
-            if (info.socketServer) {
-                relaySocket = "ws://" + info.socketServer + ":" + (info.socketPort || 31415)
-            }
-            this.nbNode = nbNode
-            return true
-        }
-        return false
-    }
+
     async disconnect() {
         this.nbpeer.disconnect()
     }
