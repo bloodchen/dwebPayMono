@@ -1,9 +1,13 @@
 var isBrowser = isBrowser || new Function('try {return this===window;}catch(e){ return false;}');
 const g_isBrowser = isBrowser();
+var fetch = (typeof (window) === 'undefined') ? null : window.fetch;
 import nbpeer from "nbpeer"
 export default class WalletHost {
     constructor() {
         this.eventCB = {}
+        if (!g_isBrowser) {
+            fetch = require('cross-fetch')
+        }
     }
     async init({ appid }) {
         this.appid = appid
@@ -15,9 +19,9 @@ export default class WalletHost {
         this.nbpeer.on("connectWallet", async (para) => {
             return await this.connectApp(para)
         })
-        this.nbpeer.onElse((eName, ...argv) => {
+        this.nbpeer.onElse(async (eName, ...argv) => {
             console.log("got nbpeer event:", eName, ...argv)
-            this._fire(eName, ...argv)
+            return await this._fire(eName, ...argv)
         })
     }
     async connectApp(appInfo) {
@@ -83,9 +87,9 @@ export default class WalletHost {
         const cb1 = this.eventCB['_any']
         const ret = cb ? await cb(...argv) : (cb1 ? await cb1(name, ...argv) : null)
         const retFn = argv[argv.length - 1]
-        if (typeof retFn == 'function') {
+        /*if (typeof retFn == 'function') {
             retFn(ret)
-        }
+        }*/
         return ret
     }
 

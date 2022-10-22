@@ -41,12 +41,9 @@ export default class WalletApp {
     }
     async connect(walletId, { permissions }) {
         const options = { id: this.id, appid: this.appid, permissions }
+
         let res = await this.createSession()
         if (res.code == 0) {
-            if (walletId) {
-                res = await this.getResult(walletId, 'connectWallet', options)
-                console.log(res)
-            }
             if (res.code != 0 || !walletId) {
                 const url = await this.optionsToUrl(options)
                 const uri = `wp:${this.id}?node=${encodeURIComponent(this.nbNode)}&key=${this.nbpeer.getKey()}&path=${encodeURIComponent(url)}`
@@ -55,7 +52,12 @@ export default class WalletApp {
                     console.log("event from modal:", event, para)
                     if (event === 'click') {
                         if (para === 'vbox') {
-                            vbox.connect(options)
+                            if (!window.VBox) {
+                                alert('VBox is not found')
+                                return
+                            }
+                            window.VBox.connect(uri)
+                            return { code: 0 }
                         }
                     }
                 })
@@ -68,47 +70,34 @@ export default class WalletApp {
     async getBalance(walletId, address, chain) {
         return await this.getResult(walletId, 'getBalance', address, chain)
     }
-    /**
-     * 
-     * @param {*} option:
-     * {    
-     *      data:['abc',123] //optional
-     *      to:[address:'fafasf',value:100] //optional
-     *      chain:chain //required
-     * } 
-     * @returns (json)
-     * {
-     *      code:0 //successful
-     *      msg:"successful" //error message or success
-     * }
-     */
+    async getPubKey(walletId, address, chain) {
+        return await this.getResult(walletId, 'getPubKey', address, chain)
+    }
+    async signTransaction(walletId, option) {
+        return await this.getResult(walletId, 'signTransaction', option)
+    }
     async sendTransaction(walletId, option) {
         return await this.getResult(walletId, 'sendTransaction', option)
     }
-    /**
-     * 
-     * @param {*} option :
-     * {
-     *  signer:(string)address
-     *  message:(string)msg
-     *  chain:(string)chain
-     * }
-     * @returns (json)
-     * {
-     *      code:0 //successful
-     *      msg:"successful" //(string) error message or success
-     *      sig:"" //(string) signature
-     * }
-     */
-    async signMessage(walletId, option) {
-        return await this.getResult(walletId, 'signMessage', option)
+    async getAddresses(walletId, chain) {
+        return await this.getResult(walletId, 'getAddresses', chain)
     }
+    async getAccounts(walletId, chain) {
+        return await this.getResult(walletId, 'getAccounts', chain)
+    }
+    async signMessage(walletId, strData, chain) {
+        return await this.getResult(walletId, 'signMessage', strData, chain)
+    }
+    async decrypt(walletId, data, chain) {
+        return await this.getResult(walletId, 'decrypt', data, chain)
+    }
+
     async getResult(walletId, ...args) {
         const func = args[0]
         const para = args.slice(1)
         const request = { name: func, para }
         if (walletId === 'vbox') {
-            return await vbox.invoke(func, ...para)
+            return await window.VBox.getResult(func, ...para)
         }
         const res = await this.nbpeer.send(walletId, "session_request", request)
         return res
@@ -150,7 +139,7 @@ export default class WalletApp {
     }
     notify(walletId, ...argv) {
         if (walletId === 'vbox') {
-            vbox.notify(...argv)
+            window.VBox.notify(...argv)
         }
         this.nbpeer.send(walletId, 'notify', ...argv)
     }

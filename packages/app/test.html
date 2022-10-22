@@ -18,7 +18,7 @@
     </div>
     <script type="text/javascript">
         const wpay = new WalletApp();
-        wpay.init({ appid: "app1.nbdomain.a", bridge: "http://localhost:9001", debug: false })
+        wpay.init({ appid: "app1.nbdomain.a", bridge: "http://192.168.1.102:9001", debug: false })
         console.log(wpay)
         let walletID = null
         wpay.on('session_notify', async (wallet_id, event) => {

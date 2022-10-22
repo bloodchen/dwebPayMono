@@ -9,7 +9,6 @@ import versionInjector from 'rollup-plugin-version-injector';
 export default [
   {
     input: "src/wapp.js",
-    external: ['socket.io-client', 'eccrypto-js', 'cross-fetch'],
     output: {
       file: "wapp.min.js",
       format: "umd",
@@ -21,7 +20,9 @@ export default [
       babel({
         exclude: 'node_modules/**' // only transpile our source code
       }),
-      commonjs(),
+      commonjs({
+        ignore: ['socket.io-client', 'eccrypto-js', 'cross-fetch']
+      }),
       //terser() 
     ],
   },

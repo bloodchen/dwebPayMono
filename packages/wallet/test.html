@@ -15,14 +15,19 @@
     <input type="text" name="" id="peerid" />
     </div>
     <script type="text/javascript">
+        async function getBalance() {
+            return { code: 0, balance: 11111 }
+        }
         const whost = new WalletHost();
         whost.init({})
-        whost.on('session_request', async (from_id, request) => {
+        whost.on('session_request', async (from_id, request, ret) => {
             const { name, para } = request
             console.log("got request name:", name, " para:", para)
             if (name === 'getBalance') {
                 const account = para[0], chain = para[1]
-                return { code: 0, balance: 1223332 }
+                const balance = await getBalance()
+                //ret(balance)
+                return balance
             }
             if (name === 'pair_request') { //return code:0 to approve
                 const appInfo = para[0]
@@ -33,12 +38,12 @@
                 return { code: 0 }
             }
         })
-        whost.on('session_notify', async (event) => {
+        whost.on('session_notify', async (from_id, event) => {
             const name = event.name
 
         })
-        whost.onElse(async (eName, para) => {
-            console.log("got event from whost", eName, para)
+        whost.onElse(async (eName, ...args) => {
+            console.log("got event from whost", eName, args)
             if (eName === "closed") {
                 // wpay.disconnect()
             }

@@ -15,14 +15,17 @@ Home of dwebPay, a framework for payment of dApps and wallet
 **Install**
 
 ```
-<script src="https://unpkg.com/@dwebpay/app@release"></script>
+<script src="https://unpkg.com/@dwebpay/app@stable"></script> //stable version
+<script src="https://unpkg.com/@dwebpay/app@latest"></script> //latest beta version
 ```
+
+### Sample code
 
 1. Initialize the app
 
 ```
     const wpay = new WalletApp();
-    wpay.init({ appid: "app.nbdomain.b", bridge: "https://api.nbdomain.com", debug: true })
+    wpay.init({ appid: "app.nbdomain.a", bridge: "https://api.nbdomain.com", debug: true })
     //appid: a valid nbdomain, content is a JSON. Example:
     {
         "name":"A test app",
@@ -56,7 +59,84 @@ Home of dwebPay, a framework for payment of dApps and wallet
 3. connect to wallet with the required permission. A qr code will appear if it's not connected before
    await wpay.connect(walletId,{ permissions: "methods:['getBalance','getAddresses','signMessage','sendTransaction'],chains:['bsv','ar']" })
 
+### dApp API
+
+0. init({ appid: "app.nbdomain.a", bridge: "https://api.nbdomain.com", debug: true })
+   **appid**: (string) unique nbdomain key that has meta infomation of the app
+   **bridge**: (string) the nbnode that acts as the relay
+   **debug**: enable debug mode to develop
+
+1. connect(walletId,{permissions})
+   **walletId**: (string) Id of the wallet. Pass null to show the QR code dialog.
+   **permissions**: (object) required permissions
+
+2. getAddresses(walletId,chain) //get all addresses of a chain
+   **walletId**: (string) Id of the wallet
+   **chain**: (string) chain ticker
+
+3. getAccounts(walletId,chain) //get all accounts, xxx@dddd.a style, of a chain
+   **walletId**: (string) Id of the wallet
+   **chain**: chain ticker
+
+4. getBalance(walletId,address,chain) //get balance of an address
+   **walletId**: (string) Id of the wallet
+   **address**: (string) address of the wallet
+   **chain**: (string) chain ticker
+
+5. getPubKey(walletId,address,chain) //get public key of an address
+   **walletId**: (string) Id of the wallet
+   **address**: (string) address of the wallet
+   **chain**: (string) chain ticker
+
+6. signTransaction(walletId,options) //sign transaction according to the options and return the signed raw tx
+   **walletId**: (string) Id of the wallet
+   **options**: (object)
+
+   ```
+   options = {
+       data:"", //data will be put into the transaction
+       to:[
+           {address:"",value:100}, //payment address and amount. The amount is 1/million of the token
+           {address:"",value:100}
+       ],
+       more_data:"", //more_data will not be procceded and return to the app
+       chain:"ar"   //chain
+   }
+   ```
+
+   > Note: For chains that can only do 1 to 1 payment, eg: ar, eth, multipal payment address will generate multipal transactions and the data will only set to the first transaction. For bitcoin-like chain, they will be in one trasaction with multipal outputs
+
+7. sendTransaction(walletId,options) //send transaction according to the options
+   **walletId**: (string) Id of the wallet
+   **options**: refer to signTransaction
+
+8. signMessage(walletId,strData,chain) //sign message according to the options
+   **walletId**: (string) Id of the wallet
+   **strData**: (string) data to sign
+   **chain**: (string) chain ticker
+
+9. decrypt(walletId,data,chain) //decrypt data according to the options
+   **walletId**: (string) Id of the wallet
+   **data**: (UInt8Array) data to decrypt
+   **chain**: (string) chain ticker
+
+### wallet events to dApp
+
+#### session_notify //the notification event that does require return value
+
+`wpay.on('session_notify', async (walletId,event)=>{...})` //event.name is the event name
+event.name can be:
+
+1. approve //the required perssion is approved
+
 ## Wallet developer
+
+**Install**
+
+```
+<script src="https://unpkg.com/@dwebpay/wallet@stable"></script> //stable version
+<script src="https://unpkg.com/@dwebpay/wallet@latest"></script> //latest beta version
+```
 
 1. Initialize the wallet host
 
@@ -90,8 +170,8 @@ whost.init({})
         const name = event.name
 
     })
-    whost.onElse(async (eName, appId,para) => {
-        console.log("got event from whost", eName, para)
+    whost.onElse(async (eName, ...args) => {
+        console.log("got event from whost", eName, args)
         if (eName === "closed") {
             // wpay.disconnect()
         }
