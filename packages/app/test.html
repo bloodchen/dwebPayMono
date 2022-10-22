@@ -18,15 +18,16 @@
     </div>
     <script type="text/javascript">
         const wpay = new WalletApp();
-        wpay.init({ appid: "app1.nbdomain.a", bridge: "http://192.168.1.102:9001", debug: false })
+        const nbnode = "https://tnode.nbdomain.com" //"http://192.168.1.102:9001"
+        wpay.init({ appid: "app1.nbdomain.a", bridge: nbnode, debug: false })
         console.log(wpay)
-        let walletID = null
+        let walletId = null
         wpay.on('session_notify', async (wallet_id, event) => {
             const name = event.name
             if (name === 'approved') {
                 console.log("permission approved")
-                walletID = wallet_id
-                const ret = await wpay.getBalance(wallet_id, 'dfasfasdf', 'ar')
+                walletId = wallet_id
+                const ret = await wpay.getBalance({ walletId, address: 'pJU9Ab9ugJAMuTFghZ_fLh58CZjJ1iAXZrgMzn9Zpnw', chain: 'ar' })
                 console.log("getBalance:", ret)
             }
         })
@@ -41,14 +42,14 @@
         })
         async function onConnectWallet() {
             //wpay.test()
-            console.log(await wpay.connect(walletID, { permissions: "chains:['bsv','ar']" }))
+            console.log(await wpay.connect({ walletId, permissions: "chains:['bsv','ar']" }))
         }
         async function onBalance() {
-            const ret = await wpay.getBalance(walletID, 'dfasfasdf', 'ar')
+            const ret = await wpay.getBalance({ walletId, address: 'pJU9Ab9ugJAMuTFghZ_fLh58CZjJ1iAXZrgMzn9Zpnw', chain: 'ar' })
             console.log("getBalance:", ret)
         }
         async function onTransaction() {
-            const ret = await wpay.sendTransaction(walletID, { data: 'abc', to: { address: "dffasf", value: 1000 } }, 'ar')
+            const ret = await wpay.sendTransaction({ walletId, options: { data: 'abc', to: { address: "dffasf", value: 1000 } } })
             console.log("sendTransaction:", ret)
         }
 

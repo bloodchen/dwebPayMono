@@ -22,28 +22,33 @@ export default class WalletApp {
         if (!debug) {
 
         }
+        this.walletId = null
         this.nbpeer = new nbpeer()
         await this.nbpeer.init()
         this.modal = new qrModal({ bridge, debug })
         this.nbpeer.on('session_notify', (wallet_id, event) => {
             if (event.name === 'approved') {
-                //this.nbpeer.setEncryptKey(event.para.key)
+                this.walletId = wallet_id
                 console.log('got wallet id:', wallet_id)
                 this.modal.close()
             }
             this._fire('session_notify', wallet_id, event)
         })
+        //this.nbpeer.on('bridgeConnected', async () => {
+        //    console.log('isConnected:', await this.isConnected({}))
+        //})
         this.nbpeer.onElse((eName, ...args) => {
             console.log("got nbpeer event:", eName, ...args)
             this._fire(eName, ...args)
         })
         return true
     }
-    async connect(walletId, { permissions }) {
-        const options = { id: this.id, appid: this.appid, permissions }
 
+    async connect({ walletId, permissions }) {
+        const options = { id: this.id, appid: this.appid, permissions }
         let res = await this.createSession()
         if (res.code == 0) {
+            if (await this.isConnected({ walletId })) return { code: 0, msg: "connected" }
             if (res.code != 0 || !walletId) {
                 const url = await this.optionsToUrl(options)
                 const uri = `wp:${this.id}?node=${encodeURIComponent(this.nbNode)}&key=${this.nbpeer.getKey()}&path=${encodeURIComponent(url)}`
@@ -62,43 +67,49 @@ export default class WalletApp {
                     }
                 })
             }
-
         }
-        return { code: 0 }
+        return res
     }
 
-    async getBalance(walletId, address, chain) {
+    async getBalance({ walletId, address, chain }) {
         return await this.getResult(walletId, 'getBalance', address, chain)
     }
-    async getPubKey(walletId, address, chain) {
+    async getPubKey({ walletId, address, chain }) {
         return await this.getResult(walletId, 'getPubKey', address, chain)
     }
-    async signTransaction(walletId, option) {
-        return await this.getResult(walletId, 'signTransaction', option)
+    async signTransaction({ walletId, options }) {
+        return await this.getResult(walletId, 'signTransaction', options)
     }
-    async sendTransaction(walletId, option) {
-        return await this.getResult(walletId, 'sendTransaction', option)
+    async sendTransaction({ walletId, options }) {
+        return await this.getResult(walletId, 'sendTransaction', options)
     }
-    async getAddresses(walletId, chain) {
+    async getAddresses({ walletId, chain }) {
         return await this.getResult(walletId, 'getAddresses', chain)
     }
-    async getAccounts(walletId, chain) {
+    async getAccounts({ walletId, chain }) {
         return await this.getResult(walletId, 'getAccounts', chain)
     }
-    async signMessage(walletId, strData, chain) {
+    async signMessage({ walletId, strData, chain }) {
         return await this.getResult(walletId, 'signMessage', strData, chain)
     }
-    async decrypt(walletId, data, chain) {
+    async decrypt({ walletId, data, chain }) {
         return await this.getResult(walletId, 'decrypt', data, chain)
+    }
+    async isConnected({ walletId = null }) {
+        if (!walletId) walletId = this.walletId
+        if (!walletId) return false
+        const res = await this.nbpeer.send(walletId, "ping")
+        return res === 'pong'
     }
 
     async getResult(walletId, ...args) {
         const func = args[0]
         const para = args.slice(1)
         const request = { name: func, para }
-        if (walletId === 'vbox') {
-            return await window.VBox.getResult(func, ...para)
-        }
+        if (!walletId) walletId = this.walletId
+        //if (walletId === 'vbox') {
+        //    return await window.VBox.getResult(func, ...para)
+        //}
         const res = await this.nbpeer.send(walletId, "session_request", request)
         return res
     }
@@ -138,6 +149,7 @@ export default class WalletApp {
         return { code: 0 }
     }
     notify(walletId, ...argv) {
+        if (!walletId) walletId = this.walletId
         if (walletId === 'vbox') {
             window.VBox.notify(...argv)
         }

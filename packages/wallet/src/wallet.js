@@ -19,6 +19,9 @@ export default class WalletHost {
         this.nbpeer.on("connectWallet", async (para) => {
             return await this.connectApp(para)
         })
+        this.nbpeer.on("ping", () => {
+            return "pong"
+        })
         this.nbpeer.onElse(async (eName, ...argv) => {
             console.log("got nbpeer event:", eName, ...argv)
             return await this._fire(eName, ...argv)

@@ -1,6 +1,6 @@
 {
   "name": "@dwebpay/app",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "decentrolized web payment protocol for dApp",
   "main": "wapp.min.js",
   "scripts": {
@@ -23,12 +23,12 @@
     "axios": "^0.21.4",
     "core-js": "^3.25.5",
     "cross-fetch": "^3.1.5",
-    "nbpeer": "^1.0.31",
+    "nbpeer": "^1.0.36",
     "regenerator-runtime": "^0.13.10",
     "rollup-plugin-version-injector": "^1.3.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.19.3",
+    "@babel/core": "^7.19.6",
     "@babel/preset-env": "^7.19.4",
     "@rollup/plugin-babel": "^5.3.1",
     "@rollup/plugin-commonjs": "^21.1.0",
