@@ -61,13 +61,15 @@ Home of dwebPay, a framework for payment of dApps and wallet
 
 ### dApp API
 
+> Note: walletId can be omitted if there is only one wallet connected to the app
+
 - init({ appid: "app.nbdomain.a", bridge: "https://api.nbdomain.com", debug: true })  
   **appid**: (string) unique nbdomain key that has meta infomation of the app
   **bridge**: (string) the nbnode that acts as the relay
   **debug**: enable debug mode to develop
 
-- connect({walletId,permissions})  
-  **walletId**: (string) Id of the wallet. Pass null to show the QR code dialog.
+- connect({walletId,permissions}) //show QR dialog if it's not connected, otherwise just return
+  **walletId**: (string) Id of the wallet.
   **permissions**: (object) required permissions
 
 - disconnect({walletId})  
@@ -123,7 +125,7 @@ Home of dwebPay, a framework for payment of dApps and wallet
   **data**: (UInt8Array) data to decrypt
   **chain**: (string) chain ticker
 
-* isConnected({walletId}) //return connect state with the wallet
+* isConnected({walletId}) //return connect state of the wallet
 
 ### wallet events to dApp
 

@@ -95,7 +95,7 @@ export default class WalletApp {
     async decrypt({ walletId, data, chain }) {
         return await this.getResult(walletId, 'decrypt', data, chain)
     }
-    async isConnected({ walletId = null }) {
+    async isConnected({ walletId = null }={}) {
         if (!walletId) walletId = this.walletId
         if (!walletId) return false
         const res = await this.nbpeer.send(walletId, "ping")
