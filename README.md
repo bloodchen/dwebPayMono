@@ -29,10 +29,12 @@ Home of dwebPay, a framework for payment of dApps and wallet
     //appid: a valid nbdomain, content is a JSON. Example:
     {
         "name":"A test app",
-        "icon":"https://www.testapp.com/icon.png",
+        "icon":"https://bloodchen.github.io/dwebPayMono/static/test.webp",
         "allowUri":["http://localhost/nbdomain.a/","https://nbdomain.com/"] //only verify when debug is NOT true
     }
 ```
+
+> Note: Learm more about NBdomain at https://nbdomain.com
 
 2. setup event handlers
 
@@ -61,40 +63,43 @@ Home of dwebPay, a framework for payment of dApps and wallet
 
 ### dApp API
 
-> Note: walletId can be omitted if there is only one wallet connected to the app
+> Note: walletId can be omitted if there is only one wallet connected to the app  
+> All functions except specified will return {code:0} for success and non-0 for failure.
 
 - init({ appid: "app.nbdomain.a", bridge: "https://api.nbdomain.com", debug: true })  
-  **appid**: (string) unique nbdomain key that has meta infomation of the app
-  **bridge**: (string) the nbnode that acts as the relay
+  **appid**: (string) unique nbdomain key that has meta infomation of the app  
+  **bridge**: (string) the nbnode that acts as the relay  
   **debug**: enable debug mode to develop
 
-- connect({walletId,permissions}) //show QR dialog if it's not connected, otherwise just return
-  **walletId**: (string) Id of the wallet.
+  **return**: (bool) true/false
+
+- connect({walletId,permissions}) //show QR dialog if it's not connected, otherwise just return  
+  **walletId**: (string) Id of the wallet.  
   **permissions**: (object) required permissions
 
 - disconnect({walletId})  
   **walletId**: (string) Id of the wallet. Pass null to show the QR code dialog.
 
 - getAddresses({walletId,chain}) //get all addresses of a chain  
-  **walletId**: (string) Id of the wallet
+  **walletId**: (string) Id of the wallet  
   **chain**: (string) chain ticker
 
 - getAccounts({walletId,chain}) //get all accounts, xxx@dddd.a style, of a chain  
-  **walletId**: (string) Id of the wallet
+  **walletId**: (string) Id of the wallet  
   **chain**: chain ticker
 
 - getBalance({walletId,address,chain}) //get balance of an address  
-  **walletId**: (string) Id of the wallet
-  **address**: (string) address of the wallet
+  **walletId**: (string) Id of the wallet  
+  **address**: (string) address of the wallet  
   **chain**: (string) chain ticker
 
 - getPubKey({walletId,address,chain}) //get public key of an address  
-  **walletId**: (string) Id of the wallet
-  **address**: (string) address of the wallet
+  **walletId**: (string) Id of the wallet  
+  **address**: (string) address of the wallet  
   **chain**: (string) chain ticker
 
 - signTransaction({walletId,options}) //sign transaction according to the options and return the signed raw tx  
-  **walletId**: (string) Id of the wallet
+  **walletId**: (string) Id of the wallet  
   **options**: (object)
 
   ```
@@ -112,17 +117,19 @@ Home of dwebPay, a framework for payment of dApps and wallet
   > Note: For chains that can only do 1 to 1 payment, eg: ar, eth, multipal payment address will generate multipal transactions and the data will only set to the first transaction. For bitcoin-like chain, they will be in one trasaction with multipal outputs
 
 - sendTransaction({walletId,options}) //send transaction according to the options  
-  **walletId**: (string) Id of the wallet
+  **walletId**: (string) Id of the wallet  
   **options**: refer to signTransaction
 
-- signMessage({walletId,strData,chain}) //sign message according to the options  
-  **walletId**: (string) Id of the wallet
-  **strData**: (string) data to sign
+- signMessage({walletId,strData,strAddress,chain}) //sign message according to the options  
+  **walletId**: (string) Id of the wallet  
+  **strData**: (string) data to sign  
+  **strAddress**: (string) the address's private key used to sign  
   **chain**: (string) chain ticker
 
-- decrypt({walletId,data,chain}) //decrypt data according to the options  
-  **walletId**: (string) Id of the wallet
-  **data**: (UInt8Array) data to decrypt
+- decrypt({walletId,data,strAddress,chain}) //decrypt data according to the options  
+  **walletId**: (string) Id of the wallet  
+  **data**: (UInt8Array) data to decrypt  
+  **strAddress**: (string) the address's private key used to sign  
   **chain**: (string) chain ticker
 
 * isConnected({walletId}) //return connect state of the wallet
@@ -134,7 +141,7 @@ Home of dwebPay, a framework for payment of dApps and wallet
 `wpay.on('session_notify', async (walletId,event)=>{...})` //event.name is the event name
 event.name can be:
 
-1. approve //the required perssion is approved
+1. approve //the required permissions are approved
 
 ## Wallet developer
 

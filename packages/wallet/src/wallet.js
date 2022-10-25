@@ -14,6 +14,7 @@ export default class WalletHost {
         this.approved = false
         this.id = Date.now().toString(36)
         this.eventCB = {}
+        
         this.nbpeer = new nbpeer()
         await this.nbpeer.init()
         this.nbpeer.on("connectWallet", async (para) => {
