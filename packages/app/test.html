@@ -4,7 +4,7 @@
 <head>
     <title>dappPay Demo</title>
     <meta charset="UTF-8">
-    <script src="wapp.min.js"></script>
+    <script src="https://unpkg.com/@dwebpay/app@latest/wapp.min.js"></script>
 
 </head>
 
@@ -12,13 +12,19 @@
     <h2>Demo dappPay</h2>
     <br><br>
     <button onclick="onConnectWallet()"> Connect Wallet</button>
+    <button onclick="onAddresses()"> getAddresses</button>
+    <button onclick="onPubKey()"> getPubKey</button>
     <button onclick="onBalance()"> getBalance</button>
+    <button onclick="onAccounts()"> getAccounts</button>
+    <button onclick="onSignTransaction()"> signTransaction</button>
     <button onclick="onTransaction()"> sendTransaction</button>
+    <button onclick="onSignMessage()"> signMessage</button>
+    <button onclick="onDecrypt()"> decrypt</button>
     <div id="pay" style="width:300px;height:250px">
     </div>
     <script type="text/javascript">
         const wpay = new WalletApp();
-        const nbnode = "https://tnode.nbdomain.com" //"http://192.168.1.102:9001"
+        const nbnode = "https://nbnode.maxthon.com" //"http://192.168.1.102:9001"
         wpay.init({ appid: "app1.nbdomain.a", bridge: nbnode, debug: false })
         console.log(wpay)
         let walletId = null
@@ -27,7 +33,7 @@
             if (name === 'approved') {
                 console.log("permission approved")
                 walletId = wallet_id
-                const ret = await wpay.getBalance({ walletId, address: 'pJU9Ab9ugJAMuTFghZ_fLh58CZjJ1iAXZrgMzn9Zpnw', chain: 'ar' })
+                const ret = await wpay.getBalance({ walletId, address: '13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6', chain: 'bsv' })
                 console.log("getBalance:", ret)
             }
         })
@@ -44,13 +50,39 @@
             //wpay.test()
             console.log(await wpay.connect({ walletId, permissions: "chains:['bsv','ar']" }))
         }
+        async function onAddresses() {
+            const ret = await wpay.getAddresses({ walletId, chain: 'bsv' })
+            console.log("getAddresses:", ret)
+        }
+        async function onPubKey() {
+            const ret = await wpay.getPubKey({ walletId, address: '13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6', chain: 'bsv' })
+            console.log("getPubKey:", ret)
+        }
         async function onBalance() {
-            const ret = await wpay.getBalance({ walletId, address: 'pJU9Ab9ugJAMuTFghZ_fLh58CZjJ1iAXZrgMzn9Zpnw', chain: 'ar' })
+            const ret = await wpay.getBalance({ walletId, address: '13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6', chain: 'bsv' })
             console.log("getBalance:", ret)
         }
+        async function onAccounts() {
+            const ret = await wpay.getAccounts({ walletId, chain: 'bsv' })
+            console.log("getAccounts:", ret)
+        }
         async function onTransaction() {
-            const ret = await wpay.sendTransaction({ walletId, options: { data: 'abc', to: { address: "dffasf", value: 1000 } } })
+            const ret = await wpay.sendTransaction({ walletId, options: { pay: { data: 'abc', to: [{ address: "15YZmLkqbM4PNryrGmPRqa1rfjRpM38rcS", value: 1000 }], address: '13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6', chain: 'bsv' } } })
             console.log("sendTransaction:", ret)
+        }
+        async function onSignTransaction() {
+            const ret = await wpay.signTransaction({ walletId, options: { pay: { data: 'abc', to: [{ address: "15YZmLkqbM4PNryrGmPRqa1rfjRpM38rcS", value: 1000 }], address: '13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6', chain: 'bsv' } } })
+            console.log("signTransaction:", ret)
+        }
+
+        async function onSignMessage() {
+            const ret = await wpay.signMessage({ walletId, strData: 'dadasdsadas', strAddress: "13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6", chain: "bsv" })
+            console.log("signMessage:", ret)
+        }
+
+        async function onDecrypt() {
+            const ret = await wpay.decrypt({ walletId, data: 'dadasdsadas', strAddress: "13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6", chain: "bsv" })
+            console.log("decrypt:", ret)
         }
 
     </script>

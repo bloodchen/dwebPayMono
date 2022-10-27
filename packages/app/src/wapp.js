@@ -43,7 +43,24 @@ export default class WalletApp {
         })
         return true
     }
-
+    async runOnce(options) {
+        const url = await this.optionsToUrl(options)
+        const uri = `wp:${this.id}?node=${encodeURIComponent(this.nbNode)}&cmd=once&key=${this.nbpeer.getKey()}&path=${encodeURIComponent(url)}`
+        console.log(uri)
+        this.modal.show(uri, async (event, para) => {
+            console.log("event from modal:", event, para)
+            if (event === 'click') {
+                if (para === 'vbox') {
+                    if (!window.VBox) {
+                        alert('VBox is not found')
+                        return
+                    }
+                    window.VBox.connect(uri)
+                    return { code: 0 }
+                }
+            }
+        })
+    }
     async connect({ walletId, permissions }) {
         const options = { id: this.id, appid: this.appid, permissions }
         let res = await this.createSession()
@@ -51,7 +68,7 @@ export default class WalletApp {
             if (await this.isConnected({ walletId })) return { code: 0, msg: "connected" }
             if (res.code != 0 || !walletId) {
                 const url = await this.optionsToUrl(options)
-                const uri = `wp:${this.id}?node=${encodeURIComponent(this.nbNode)}&key=${this.nbpeer.getKey()}&path=${encodeURIComponent(url)}`
+                const uri = `wp:${this.id}?node=${encodeURIComponent(this.nbNode)}&cmd=connect&key=${this.nbpeer.getKey()}&path=${encodeURIComponent(url)}`
                 console.log(uri)
                 this.modal.show(uri, async (event, para) => {
                     console.log("event from modal:", event, para)
@@ -72,28 +89,28 @@ export default class WalletApp {
     }
 
     async getBalance({ walletId, address, chain }) {
-        return await this.getResult(walletId, 'getBalance', address, chain)
+        return await this.getResult(walletId, 'getBalance', { address, chain })
     }
     async getPubKey({ walletId, address, chain }) {
-        return await this.getResult(walletId, 'getPubKey', address, chain)
+        return await this.getResult(walletId, 'getPubKey', { address, chain })
     }
     async signTransaction({ walletId, options }) {
-        return await this.getResult(walletId, 'signTransaction', options)
+        return await this.getResult(walletId, 'signTransaction', { options })
     }
     async sendTransaction({ walletId, options }) {
-        return await this.getResult(walletId, 'sendTransaction', options)
+        return await this.getResult(walletId, 'sendTransaction', { options })
     }
     async getAddresses({ walletId, chain }) {
-        return await this.getResult(walletId, 'getAddresses', chain)
+        return await this.getResult(walletId, 'getAddresses', { chain })
     }
     async getAccounts({ walletId, chain }) {
-        return await this.getResult(walletId, 'getAccounts', chain)
+        return await this.getResult(walletId, 'getAccounts', { chain })
     }
-    async signMessage({ walletId, strData, chain }) {
-        return await this.getResult(walletId, 'signMessage', strData, chain)
+    async signMessage({ walletId, strData, strAddress, chain }) {
+        return await this.getResult(walletId, 'signMessage', { strData, strAddress, chain })
     }
-    async decrypt({ walletId, data, chain }) {
-        return await this.getResult(walletId, 'decrypt', data, chain)
+    async decrypt({ walletId, data, strAddress, chain }) {
+        return await this.getResult(walletId, 'decrypt', { data, strAddress, chain })
     }
     async isConnected({ walletId = null } = {}) {
         if (!walletId) walletId = this.walletId
