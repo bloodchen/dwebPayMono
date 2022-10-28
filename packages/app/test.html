@@ -4,7 +4,7 @@
 <head>
     <title>dappPay Demo</title>
     <meta charset="UTF-8">
-    <script src="https://unpkg.com/@dwebpay/app@latest/wapp.min.js"></script>
+    <script src="./wapp.min.js"></script>
 
 </head>
 
@@ -24,18 +24,12 @@
     </div>
     <script type="text/javascript">
         const wpay = new WalletApp();
-        const nbnode = "https://nbnode.maxthon.com" //"http://192.168.1.102:9001"
+        const nbnode = "http://192.168.1.102:9001" //"https://nbnode.maxthon.com"
         wpay.init({ appid: "app1.nbdomain.a", bridge: nbnode, debug: false })
         console.log(wpay)
         let walletId = null
         wpay.on('session_notify', async (wallet_id, event) => {
             const name = event.name
-            if (name === 'approved') {
-                console.log("permission approved")
-                walletId = wallet_id
-                const ret = await wpay.getBalance({ walletId, address: '13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6', chain: 'bsv' })
-                console.log("getBalance:", ret)
-            }
         })
         wpay.on('session_request', async (wallet_id, request) => {
 
@@ -48,7 +42,13 @@
         })
         async function onConnectWallet() {
             //wpay.test()
-            console.log(await wpay.connect({ walletId, permissions: "chains:['bsv','ar']" }))
+            const res = await wpay.connect({ walletId, permissions: "chains:['bsv','ar']" })
+            console.log(res)
+            if (res.code === 0) {
+                walletId = res.wallet_id
+                const ret = await wpay.getBalance({ address: '13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6', chain: 'bsv' })
+                console.log("getBalance:", ret)
+            }
         }
         async function onAddresses() {
             const ret = await wpay.getAddresses({ walletId, chain: 'bsv' })

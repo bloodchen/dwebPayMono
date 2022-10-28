@@ -20,7 +20,7 @@
         }
         const whost = new WalletHost();
         whost.init({})
-        whost.on('session_request', async (from_id, request, ret) => {
+        whost.on('session_request', async (appid, request, ret) => {
             const { name, para } = request
             console.log("got request name:", name, " para:", para)
             if (name === 'getBalance') {

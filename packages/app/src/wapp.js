@@ -4,19 +4,27 @@ const g_isBrowser = isBrowser();
 import qrModal from "@dwebpay/qrModal"
 import nbpeer from "nbpeer"
 
+var qrTermila;
 let log = console.log;
 export default class WalletApp {
+    constructor() {
+        this.lastChecking = 0
+    }
     async init({ appid, bridge, debug = true }) {
         this.appid = appid
         this.nbNode = bridge
         this.debug = debug
         this.eventCB = {}
         this.id = Date.now().toString(36)
+        if (!g_isBrowser) {
+            global.fetch = require("cross-fetch")
+            qrTermila = require('qrcode-terminal');
+        }
         const res = await fetch(bridge + "/api/q/" + appid)
         if (res.ok) {
             this.meta = await res.json()
         } else {
-            console.error("can't fetch:", appid)
+            console.error("can't fetch:", appid, "from:", bridge)
             return false
         }
         if (this.meta.allowSite && !debug) { //
@@ -26,14 +34,7 @@ export default class WalletApp {
         this.nbpeer = new nbpeer()
         await this.nbpeer.init()
         this.modal = new qrModal({ bridge, debug })
-        this.nbpeer.on('session_notify', (wallet_id, event) => {
-            if (event.name === 'approved') {
-                this.walletId = wallet_id
-                console.log('got wallet id:', wallet_id)
-                this.modal.close()
-            }
-            this._fire('session_notify', wallet_id, event)
-        })
+
         //this.nbpeer.on('bridgeConnected', async () => {
         //    console.log('isConnected:', await this.isConnected({}))
         //})
@@ -43,49 +44,50 @@ export default class WalletApp {
         })
         return true
     }
-    async runOnce(options) {
-        const url = await this.optionsToUrl(options)
-        const uri = `wp:${this.id}?node=${encodeURIComponent(this.nbNode)}&cmd=once&key=${this.nbpeer.getKey()}&path=${encodeURIComponent(url)}`
-        console.log(uri)
-        this.modal.show(uri, async (event, para) => {
-            console.log("event from modal:", event, para)
-            if (event === 'click') {
-                if (para === 'vbox') {
-                    if (!window.VBox) {
-                        alert('VBox is not found')
-                        return
+
+    async connect({ walletId, permissions }) {
+        const self = this
+        return new Promise(async resolve => {
+            const options = { id: this.id, appid: this.appid, permissions }
+            let res = await this.createSession()
+            if (res.code == 0) {
+                this.nbpeer.on('session_notify', (wallet_id, event) => {
+                    if (event.name === 'approved') {
+                        self.walletId = wallet_id
+                        console.log('got wallet id:', wallet_id)
+                        self.modal.close()
+                        resolve({ code: 0, wallet_id, msg: "approved" }); return
                     }
-                    window.VBox.connect(uri)
-                    return { code: 0 }
+                    self._fire('session_notify', wallet_id, event)
+                })
+                if (await this.isConnected({ walletId })) {
+                    resolve({ code: 0, msg: "connected" }); return
+                }
+                if (res.code != 0 || !walletId) {
+                    const url = await this.optionsToUrl(options)
+                    const uri = `wp:${this.id}?node=${encodeURIComponent(this.nbNode)}&cmd=connect&key=${this.nbpeer.getKey()}&path=${encodeURIComponent(url)}`
+                    console.log(uri)
+                    if (g_isBrowser) {
+                        this.modal.show(uri, async (event, para) => {
+                            console.log("event from modal:", event, para)
+                            if (event === 'close') {
+                                resolve({ code: 1, msg: "Cancelled" })
+                            }
+                            if (event === 'click' && para === 'vbox') {
+                                if (!window.VBox) {
+                                    resolve({ code: 1, msg: "VBox is not found" });
+                                    return
+                                }
+                                window.VBox.connect(uri)
+                            }
+                        })
+                    } else { //node envirment, show terminal qrcode
+                        qrTermila.generate(uri, { small: true });
+                    }
+
                 }
             }
         })
-    }
-    async connect({ walletId, permissions }) {
-        const options = { id: this.id, appid: this.appid, permissions }
-        let res = await this.createSession()
-        if (res.code == 0) {
-            if (await this.isConnected({ walletId })) return { code: 0, msg: "connected" }
-            if (res.code != 0 || !walletId) {
-                const url = await this.optionsToUrl(options)
-                const uri = `wp:${this.id}?node=${encodeURIComponent(this.nbNode)}&cmd=connect&key=${this.nbpeer.getKey()}&path=${encodeURIComponent(url)}`
-                console.log(uri)
-                this.modal.show(uri, async (event, para) => {
-                    console.log("event from modal:", event, para)
-                    if (event === 'click') {
-                        if (para === 'vbox') {
-                            if (!window.VBox) {
-                                alert('VBox is not found')
-                                return
-                            }
-                            window.VBox.connect(uri)
-                            return { code: 0 }
-                        }
-                    }
-                })
-            }
-        }
-        return res
     }
 
     async getBalance({ walletId, address, chain }) {
@@ -115,8 +117,13 @@ export default class WalletApp {
     async isConnected({ walletId = null } = {}) {
         if (!walletId) walletId = this.walletId
         if (!walletId) return false
-        const res = await this.nbpeer.send(walletId, "ping")
-        return res === 'pong'
+        const span = Date.now() - this.lastChecking
+        if (span > 1000 * 5) {
+            this.lastChecking = Date.now()
+            const res = await this.nbpeer.send(walletId, "ping")
+            this.connected = (res === 'pong')
+        }
+        return this.connected
     }
 
     async getResult(walletId, ...args) {

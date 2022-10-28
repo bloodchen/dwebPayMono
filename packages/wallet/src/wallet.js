@@ -14,7 +14,7 @@ export default class WalletHost {
         this.approved = false
         this.id = Date.now().toString(36)
         this.eventCB = {}
-        
+
         this.nbpeer = new nbpeer()
         await this.nbpeer.init()
         this.nbpeer.on("connectWallet", async (para) => {
@@ -41,25 +41,23 @@ export default class WalletHost {
         return { code: 0, msg: "approved" }
     }
     async pair(uri) {
-        if (this.nbpeer) {
-            this.disconnect()
-        }
         const parseUrl = new URL(uri)
         const url_id = parseUrl.pathname
         const nbNode = parseUrl.searchParams.get('node')
         const path = parseUrl.searchParams.get('path')
         if (nbNode) {
             this.nbNode = nbNode
-            const r = await this.nbpeer.create({ id: this.id, nbNode: this.nbNode, debug: true })
-            await this.nbpeer.connectTo(url_id)
-            if (r.code != 0) {
-                return { code: 1, msg: "cannot connect to node:", nbNode }
+            if (!this.nbpeer.isConnected()) {
+                const r = await this.nbpeer.create({ id: this.id, nbNode: this.nbNode, debug: true })
+                if (r.code != 0) {
+                    return { code: 1, msg: "cannot connect to node:", nbNode }
+                }
             }
+            await this.nbpeer.connectTo(url_id)
             const res = await fetch(nbNode + path)
             if (!res.ok) {
                 return { code: 1, msg: "cannot fetch:" + nbNode + path }
             }
-
             const appInfo = await res.json()
             console.log(appInfo)
             if (url_id != appInfo.id) {

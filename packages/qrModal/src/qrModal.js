@@ -134,7 +134,8 @@ input[type="radio"]:checked + ._tab-control {
 </div>
 `
 import { Util } from "./util"
-const scriptPath = document && document.currentScript.src;
+let scriptPath = "";
+try { scriptPath = document.currentScript.src; } catch (e) { }
 export default class qrModal {
   constructor({ bridge, debug }) {
     this.nbNode = bridge

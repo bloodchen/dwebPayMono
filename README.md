@@ -73,9 +73,10 @@ Home of dwebPay, a framework for payment of dApps and wallet
 
   **return**: (bool) true/false
 
-- connect({walletId,permissions}) //show QR dialog if it's not connected, otherwise just return  
+- async connect({walletId,permissions}) //show QR dialog if it's not connected, otherwise just return  
   **walletId**: (string) Id of the wallet.  
   **permissions**: (object) required permissions
+  **return**:{code:0} means get approved by the wallet
 
 - disconnect({walletId})  
   **walletId**: (string) Id of the wallet. Pass null to show the QR code dialog.
