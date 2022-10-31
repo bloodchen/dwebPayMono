@@ -15,8 +15,8 @@ Home of dwebPay, a framework for payment of dApps and wallet
 **Install**
 
 ```
-<script src="https://unpkg.com/@dwebpay/app@stable"></script> //stable version
-<script src="https://unpkg.com/@dwebpay/app@latest"></script> //latest beta version
+<script src="https://unpkg.com/@dwebpay/app@stable/wapp.min.js"></script> //stable version
+<script src="https://unpkg.com/@dwebpay/app@latest/wapp.min.js"></script> //latest beta version
 ```
 
 ### Sample code
@@ -121,16 +121,16 @@ Home of dwebPay, a framework for payment of dApps and wallet
   **walletId**: (string) Id of the wallet  
   **options**: refer to signTransaction
 
-- signMessage({walletId,strData,strAddress,chain}) //sign message according to the options  
+- signMessage({walletId,message,address,chain}) //sign message according to the options  
   **walletId**: (string) Id of the wallet  
-  **strData**: (string) data to sign  
-  **strAddress**: (string) the address's private key used to sign  
+  **message**: (string) data to sign  
+  **address**: (string) the address's private key used to sign  
   **chain**: (string) chain ticker
 
-- decrypt({walletId,data,strAddress,chain}) //decrypt data according to the options  
+- decrypt({walletId,data,address,chain}) //decrypt data according to the options  
   **walletId**: (string) Id of the wallet  
   **data**: (UInt8Array) data to decrypt  
-  **strAddress**: (string) the address's private key used to sign  
+  **address**: (string) the address's private key used to sign  
   **chain**: (string) chain ticker
 
 * isConnected({walletId}) //return connect state of the wallet
@@ -149,8 +149,8 @@ event.name can be:
 **Install**
 
 ```
-<script src="https://unpkg.com/@dwebpay/wallet@stable"></script> //stable version
-<script src="https://unpkg.com/@dwebpay/wallet@latest"></script> //latest beta version
+<script src="https://unpkg.com/@dwebpay/wallet@stable/wallet.min.js"></script> //stable version
+<script src="https://unpkg.com/@dwebpay/wallet@latest/wallet.min.js"></script> //latest beta version
 ```
 
 1. Initialize the wallet host

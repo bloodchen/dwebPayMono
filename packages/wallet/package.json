@@ -1,6 +1,6 @@
 {
   "name": "@dwebpay/wallet",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "",
   "main": "wallet.min.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "axios": "^0.21.4",
     "core-js": "^3.26.0",
     "cross-fetch": "^3.1.5",
-    "nbpeer": "^1.0.38",
+    "nbpeer": "^1.0.40",
     "regenerator-runtime": "^0.13.10",
     "rollup-plugin-version-injector": "^1.3.3"
   },

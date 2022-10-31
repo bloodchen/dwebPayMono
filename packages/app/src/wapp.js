@@ -70,10 +70,11 @@ export default class WalletApp {
                     if (g_isBrowser) {
                         this.modal.show(uri, async (event, para) => {
                             console.log("event from modal:", event, para)
-                            if (event === 'close') {
+                            if (event === 'closed') {
                                 resolve({ code: 1, msg: "Cancelled" })
+                                return
                             }
-                            if (event === 'click' && para === 'vbox') {
+                            if (event === 'clickWallet' && para === 'vbox') {
                                 if (!window.VBox) {
                                     resolve({ code: 1, msg: "VBox is not found" });
                                     return
@@ -108,11 +109,11 @@ export default class WalletApp {
     async getAccounts({ walletId, chain }) {
         return await this.getResult(walletId, 'getAccounts', { chain })
     }
-    async signMessage({ walletId, strData, strAddress, chain }) {
-        return await this.getResult(walletId, 'signMessage', { strData, strAddress, chain })
+    async signMessage({ walletId, message, address, chain }) {
+        return await this.getResult(walletId, 'signMessage', { message, address, chain })
     }
-    async decrypt({ walletId, data, strAddress, chain }) {
-        return await this.getResult(walletId, 'decrypt', { data, strAddress, chain })
+    async decrypt({ walletId, data, address, chain }) {
+        return await this.getResult(walletId, 'decrypt', { data, address, chain })
     }
     async isConnected({ walletId = null } = {}) {
         if (!walletId) walletId = this.walletId

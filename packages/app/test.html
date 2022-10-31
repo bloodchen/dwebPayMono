@@ -55,11 +55,11 @@
             console.log("getAddresses:", ret)
         }
         async function onPubKey() {
-            const ret = await wpay.getPubKey({ walletId, address: '13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6', chain: 'bsv' })
+            const ret = await wpay.getPubKey({ walletId, address: '13NbzVaT9EYxRn1i16YCgHbmhvPWsQDhdh', chain: 'bsv' })
             console.log("getPubKey:", ret)
         }
         async function onBalance() {
-            const ret = await wpay.getBalance({ walletId, address: '13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6', chain: 'bsv' })
+            const ret = await wpay.getBalance({ walletId, address: '13NbzVaT9EYxRn1i16YCgHbmhvPWsQDhdh', chain: 'bsv' })
             console.log("getBalance:", ret)
         }
         async function onAccounts() {
@@ -76,7 +76,7 @@
         }
 
         async function onSignMessage() {
-            const ret = await wpay.signMessage({ walletId, strData: 'dadasdsadas', strAddress: "13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6", chain: "bsv" })
+            const ret = await wpay.signMessage({ walletId, strData: 'dadasdsadas', strAddress: "13NbzVaT9EYxRn1i16YCgHbmhvPWsQDhdh", chain: "bsv" })
             console.log("signMessage:", ret)
         }
 
