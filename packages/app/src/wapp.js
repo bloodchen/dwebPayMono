@@ -30,7 +30,7 @@ export default class WalletApp {
         if (this.meta.allowSite && !debug) { //
             const cursite = window.location.href
         }
-        this.walletId = null
+        this.walletId = localStorage.getItem("walletId")
         this.nbpeer = new nbpeer()
         await this.nbpeer.init()
         this.modal = new qrModal({ bridge, debug })
@@ -55,6 +55,7 @@ export default class WalletApp {
                     if (event.name === 'approved') {
                         self.walletId = wallet_id
                         console.log('got wallet id:', wallet_id)
+                        localStorage.setItem("walletId", wallet_id)
                         self.modal.close()
                         resolve({ code: 0, wallet_id, msg: "approved" }); return
                     }
@@ -63,29 +64,27 @@ export default class WalletApp {
                 if (await this.isConnected({ walletId })) {
                     resolve({ code: 0, msg: "connected" }); return
                 }
-                if (res.code != 0 || !walletId) {
-                    const url = await this.optionsToUrl(options)
-                    const uri = `wp:${this.id}?node=${encodeURIComponent(this.nbNode)}&cmd=connect&key=${this.nbpeer.getKey()}&path=${encodeURIComponent(url)}`
-                    console.log(uri)
-                    if (g_isBrowser) {
-                        this.modal.show(uri, async (event, para) => {
-                            console.log("event from modal:", event, para)
-                            if (event === 'closed') {
-                                resolve({ code: 1, msg: "Cancelled" })
+
+                const url = await this.optionsToUrl(options)
+                const uri = `wp:${this.id}?node=${encodeURIComponent(this.nbNode)}&cmd=connect&key=${this.nbpeer.getKey()}&path=${encodeURIComponent(url)}`
+                console.log(uri)
+                if (g_isBrowser) {
+                    this.modal.show(uri, async (event, para) => {
+                        console.log("event from modal:", event, para)
+                        if (event === 'closed') {
+                            resolve({ code: 1, msg: "Cancelled" })
+                            return
+                        }
+                        if (event === 'clickWallet' && para === 'vbox') {
+                            if (!window.VBox) {
+                                resolve({ code: 1, msg: "VBox is not found" });
                                 return
                             }
-                            if (event === 'clickWallet' && para === 'vbox') {
-                                if (!window.VBox) {
-                                    resolve({ code: 1, msg: "VBox is not found" });
-                                    return
-                                }
-                                window.VBox.connect(uri)
-                            }
-                        })
-                    } else { //node envirment, show terminal qrcode
-                        qrTermila.generate(uri, { small: true });
-                    }
-
+                            window.VBox.connect(uri)
+                        }
+                    })
+                } else { //node envirment, show terminal qrcode
+                    qrTermila.generate(uri, { small: true });
                 }
             }
         })
