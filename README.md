@@ -84,24 +84,28 @@ Home of dwebPay, a framework for payment of dApps and wallet
 - getAddresses({walletId,chain}) //get all addresses of a chain  
   **walletId**: (string) Id of the wallet  
   **chain**: (string) chain ticker
+  **return**:{code:0,addresses:["xxx","dds"]}
 
 - getAccounts({walletId,chain}) //get all accounts, xxx@dddd.a style, of a chain  
   **walletId**: (string) Id of the wallet  
   **chain**: chain ticker
+  **return**:{code:0,obj:[]}
 
 - getBalance({walletId,address,chain}) //get balance of an address  
   **walletId**: (string) Id of the wallet  
   **address**: (string) address of the wallet  
   **chain**: (string) chain ticker
+  **return**: {"code":0,"value":{"d9NfvYFjNnrx9IMPc0ZlsTXwTsR5m817YkmhAtdxHYk":25754961}}
 
 - getPubKey({walletId,address,chain}) //get public key of an address  
   **walletId**: (string) Id of the wallet  
   **address**: (string) address of the wallet  
   **chain**: (string) chain ticker
-
+  **return**:{"code":0,"value":"dddd"}
 - signTransaction({walletId,options}) //sign transaction according to the options and return the signed raw tx  
   **walletId**: (string) Id of the wallet  
   **options**: (object)
+  **return**: {"code":0,"rawtx":"2e1333"}
 
   ```
   options = {
@@ -110,6 +114,7 @@ Home of dwebPay, a framework for payment of dApps and wallet
           {address:"",value:100}, //payment address and amount. The amount is 1/million of the token
           {address:"",value:100}
       ],
+      payer:"", //wallet used to sign/send transaction, optional. When omitted, any wallet is ok
       more_data:"", //more_data will not be procceded and return to the app
       chain:"ar"   //chain
   }
@@ -126,12 +131,14 @@ Home of dwebPay, a framework for payment of dApps and wallet
   **message**: (string) data to sign  
   **address**: (string) the address's private key used to sign  
   **chain**: (string) chain ticker
+  **return**: {"code":0,"value":"2e1333"}
 
 - decrypt({walletId,data,address,chain}) //decrypt data according to the options  
   **walletId**: (string) Id of the wallet  
   **data**: (UInt8Array) data to decrypt  
   **address**: (string) the address's private key used to sign  
   **chain**: (string) chain ticker
+  **return**: {"code":0,"value":"2e1333"}
 
 * isConnected({walletId}) //return connect state of the wallet
 

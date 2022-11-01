@@ -120,8 +120,12 @@ export default class WalletApp {
         const span = Date.now() - this.lastChecking
         if (span > 1000 * 5) {
             this.lastChecking = Date.now()
-            const res = await this.nbpeer.send(walletId, "ping")
-            this.connected = (res === 'pong')
+            if (this.nbpeer.isConnected()) {
+                const res = await this.nbpeer.send(walletId, "ping")
+                this.connected = (res === 'pong')
+            } else {
+                this.connected = false
+            }
         }
         return this.connected
     }

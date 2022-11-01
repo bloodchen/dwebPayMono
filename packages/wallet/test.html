@@ -37,6 +37,17 @@
                 const body = para[0]
                 return { code: 0 }
             }
+            if (name === 'getPubKey') {
+                return { code: 0, publicKey: "6NV7OotyjbEu0P4XG3Q5-KqPrukKk23iLJ6wOdxql8nha87aAMKtmo8rmRQFVdjcPRbHvR9hYH4h6zXG_hJKlW3DeUaieP0Eq8dlhNnIF1lPIvT7qZqUR9hXDceTk_QFGcxv6xaPzgtZn5dm-kT-SHptyBcn3oqv-AIQygx0wny0tx2MhsSEAmeiFs7R0Y7QlfFnIIBA7Bf3nWWLszIxmoZqUipS7sU76E2JsCkq9laaEQVH--9wzO4EY7VldB9Tpkn-fyUFBEPdy9smyabgX6xBqjeGQzHUIgVCrXxrflMXdueW2Wrnnj6qH9cf0NUeeMihRfhbARWfWRd3zda29Q2VTHI9-vt2uyvDzvhhVw16t70_Z0kSZaJ2EWPfzP90oVgAbkBjHhXSPNxCGFKqt3SDEvxoCMLjwbGk3MXEyjWEY2pQtPeBEb7FaSc9snUGaU3peO8Vy318iQmXGDYPzI25ot6Pqq0GgPXZRsJbQJF5eyZZBzj9c6i_AxyKw74HfG9ePRIdUsH1iBBXZftr7arhfbZbv_aexNLP1AmruR42EcJev4jKSRan-q5PFbCdTdtwcvImfzEvSAXdrePMfLHrsIPFoIuBJsXOpVCCeAqH4I1M2tDZMnZoN-IcwM-Zhf7YexMWnBs2EOh04KYP-_86kKfO-bLuDo4KFK_cBG8" }
+            }
+            if (name === 'getAddresses') {
+                return { code: 0, addresses: ["aKCNW_WGkUCk57Z4JTiyuBc1wjSb5iYsw8Pjm43Birw", "FavaPfbZB4QfWz9ZHAdBqR1U4elSW5qYKpxhSJOn0Ic"] }
+            }
+            if (name === 'decrypt') {
+                const { data, address, chain } = para[0]
+                const arr = Uint8Array.from(Object.values(data))
+                console.log(data)
+            }
         })
         whost.on('session_notify', async (from_id, event) => {
             const name = event.name

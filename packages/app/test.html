@@ -1,90 +1,131 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <title>dappPay Demo</title>
     <meta charset="UTF-8">
-    <script src="./wapp.min.js"></script>
-
+<head>
+    <style>
+        button {
+            display: inline-block;
+            outline: 0;
+            cursor: pointer;
+            text-align: center;
+            border: 1px solid #babfc3;
+            padding: 7px 16px;
+            margin: 2px 2px;
+            min-height: 36px;
+            min-width: 36px;
+            color: #202223;
+            background: #ffffff;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 14px;
+            box-shadow: rgba(0, 0, 0, 0.05) 0px 1px 0px 0px;
+        }
+    </style>
+    <script src="https://unpkg.com/coinfly@latest/dist/coinfly.min.js"></script>
 </head>
 
 <body>
-    <h2>Demo dappPay</h2>
-    <br><br>
-    <button onclick="onConnectWallet()"> Connect Wallet</button>
-    <button onclick="onAddresses()"> getAddresses</button>
-    <button onclick="onPubKey()"> getPubKey</button>
-    <button onclick="onBalance()"> getBalance</button>
-    <button onclick="onAccounts()"> getAccounts</button>
-    <button onclick="onSignTransaction()"> signTransaction</button>
-    <button onclick="onTransaction()"> sendTransaction</button>
-    <button onclick="onSignMessage()"> signMessage</button>
-    <button onclick="onDecrypt()"> decrypt</button>
-    <div id="pay" style="width:300px;height:250px">
+    <div id="q-app">
+        <button onclick="connectWallet()">connectWallet</button>
+        <p />
+        <div>Address:<input id="addressInput" /></div>
+        <p></p>
+        <button onclick="runCmd('getBalance')">getBalance</button>
+        <button onclick="runCmd('getAddresses')">getAddresses</button>
+        <button onclick="runCmd('getPubkey')">getPubkey</button>
+        <button onclick="runCmd('getAccounts')">getAccounts</button>
+        <button onclick="runCmd('signMessage')">signMessage</button>
+        <button onclick="runCmd('signTransaction')">signTransaction</button>
+        <button onclick="runCmd('sendTransaction')">sendTransaction</button>
+        <button onclick="runCmd('decrypt')">decrypt</button>
+
+        <hr />
+        result:
+        <div id="result" style="color:red"></div>
     </div>
-    <script type="text/javascript">
+
+    <script src="./wapp.min.js"></script>
+
+    <script>
         const wpay = new WalletApp();
-        const nbnode = "http://192.168.1.102:9001" //"https://nbnode.maxthon.com"
-        wpay.init({ appid: "app1.nbdomain.a", bridge: nbnode, debug: false })
-        console.log(wpay)
-        let walletId = null
-        wpay.on('session_notify', async (wallet_id, event) => {
-            const name = event.name
-        })
-        wpay.on('session_request', async (wallet_id, request) => {
+        const nbnode = "http://localhost:9001" //"https://tnode.nbdomain.com"; //"https://nbnode.maxthon.com"
+        wpay.init({ appid: "app1.nbdomain.a", bridge: nbnode, debug: false });
+        console.log(wpay);
+        let walletId = null;
 
-        })
-        wpay.onElse(async (eName, ...argc) => {
-            console.log("got event from wapp", eName, ...argc)
-            if (eName === "closed") {
-                // wpay.disconnect()
+        function setResult(result) {
+            if (typeof result === 'object') {
+                result = JSON.stringify(result)
             }
-        })
-        async function onConnectWallet() {
-            //wpay.test()
-            const res = await wpay.connect({ walletId, permissions: "chains:['bsv','ar']" })
-            console.log(res)
+            document.querySelector("#result").innerText = result;
+        }
+        async function connectWallet() {
+            const res = await wpay.connect({ permissions: "chains:['ar']" });
+            console.log(res);
             if (res.code === 0) {
-                walletId = res.wallet_id
-                const ret = await wpay.getBalance({ address: '13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6', chain: 'bsv' })
-                console.log("getBalance:", ret)
+                walletId = res.wallet_id;
+                await runCmd("getAddresses")
             }
         }
-        async function onAddresses() {
-            const ret = await wpay.getAddresses({ walletId, chain: 'bsv' })
-            console.log("getAddresses:", ret)
-        }
-        async function onPubKey() {
-            const ret = await wpay.getPubKey({ walletId, address: '13NbzVaT9EYxRn1i16YCgHbmhvPWsQDhdh', chain: 'bsv' })
-            console.log("getPubKey:", ret)
-        }
-        async function onBalance() {
-            const ret = await wpay.getBalance({ walletId, address: '13NbzVaT9EYxRn1i16YCgHbmhvPWsQDhdh', chain: 'bsv' })
-            console.log("getBalance:", ret)
-        }
-        async function onAccounts() {
-            const ret = await wpay.getAccounts({ walletId, chain: 'bsv' })
-            console.log("getAccounts:", ret)
-        }
-        async function onTransaction() {
-            const ret = await wpay.sendTransaction({ walletId, options: { pay: { data: 'abc', to: [{ address: "15YZmLkqbM4PNryrGmPRqa1rfjRpM38rcS", value: 1000 }], address: '13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6', chain: 'bsv' } } })
-            console.log("sendTransaction:", ret)
-        }
-        async function onSignTransaction() {
-            const ret = await wpay.signTransaction({ walletId, options: { pay: { data: 'abc', to: [{ address: "15YZmLkqbM4PNryrGmPRqa1rfjRpM38rcS", value: 1000 }], address: '13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6', chain: 'bsv' } } })
-            console.log("signTransaction:", ret)
-        }
 
-        async function onSignMessage() {
-            const ret = await wpay.signMessage({ walletId, strData: 'dadasdsadas', strAddress: "13NbzVaT9EYxRn1i16YCgHbmhvPWsQDhdh", chain: "bsv" })
-            console.log("signMessage:", ret)
+        async function runCmd(cmd) {
+            console.log(cmd);
+            const address = document.querySelector('#addressInput').value
+            if (!await wpay.isConnected()) {
+                setResult("Please connect wallet first")
+                return
+            }
+            const chain = 'ar'
+            let result = "";
+            if (cmd === "getBalance") {
+                result = await wpay.getBalance({ address, chain });
+            }
+            if (cmd === "getAddresses") {
+                result = await wpay.getAddresses({ chain });
+                if (result.code == 0) {
+                    document.querySelector('#addressInput').value = result.addresses[0]
+                }
+            }
+            if (cmd === "getPubkey") {
+                result = await wpay.getPubKey({ address, chain });
+            }
+            if (cmd === "getAccounts") {
+                result = await wpay.getAccounts({ chain });
+            }
+            if (cmd === "signMessage") {
+                result = await wpay.signMessage({ walletId, message: "Hello", address, chain });
+            }
+            if (cmd === "signTransaction") {
+                const options = {
+                    data: "abcd",
+                    to: [{ address: "u6fE_vB29bgXpc6ZX9-Jt0cuHgoYkIbCFQEeSkGv7XI", value: 1000 }],
+                    payer: "pJU9Ab9ugJAMuTFghZ_fLh58CZjJ1iAXZrgMzn9Zpnw",
+                    more_data: "hello world"
+                }
+                result = await wpay.signTransaction({ options });
+            }
+            if (cmd === "sendTransaction") {
+                const options = {
+                    data: "abcd",
+                    to: [{ address: "u6fE_vB29bgXpc6ZX9-Jt0cuHgoYkIbCFQEeSkGv7XI", value: 1000 }],
+                    payer: "pJU9Ab9ugJAMuTFghZ_fLh58CZjJ1iAXZrgMzn9Zpnw",
+                    more_data: "hello world"
+                }
+                result = await wpay.sendTransaction({ options });
+            }
+            if (cmd === "decrypt") {
+                const lib = await coinfly.create('ar')
+                const arr = new Uint8Array([0x15, 0x1f])
+                const publicKey = (await wpay.getPubKey({ address, chain })).publicKey
+                console.log("publicKey:", publicKey)
+                const enc = await lib.encrypt(arr, publicKey)
+                console.log("org:", arr)
+                console.log("enc:", enc)
+                result = await wpay.decrypt({ data: enc, address, chain });
+                console.log("dec:", result)
+            }
+            setResult(result);
         }
-
-        async function onDecrypt() {
-            const ret = await wpay.decrypt({ walletId, data: 'dadasdsadas', strAddress: "13HtunaadJTtLh9t4KX8MQsw3pUpPYbWQ6", chain: "bsv" })
-            console.log("decrypt:", ret)
-        }
-
     </script>
 </body>
 
