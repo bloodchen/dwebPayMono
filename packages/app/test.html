@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
+
 <head>
     <style>
         button {
@@ -60,7 +61,7 @@
             document.querySelector("#result").innerText = result;
         }
         async function connectWallet() {
-            const res = await wpay.connect({ permissions: "chains:['ar']" });
+            const res = await wpay.connect({ permissions: {chains:['ar','bsv'] }});
             console.log(res);
             if (res.code === 0) {
                 walletId = res.wallet_id;
