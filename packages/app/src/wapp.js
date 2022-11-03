@@ -9,6 +9,7 @@ let log = console.log;
 export default class WalletApp {
     constructor() {
         this.lastChecking = 0
+        console.log('app@dwebpay: [VI]{version} - {date}[/VI]');
     }
     async init({ appid, bridge, debug = true }) {
         this.appid = appid

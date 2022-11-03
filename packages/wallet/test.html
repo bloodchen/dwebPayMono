@@ -19,7 +19,7 @@
             return { code: 0, balance: 11111 }
         }
         const whost = new WalletHost();
-        whost.init({})
+        whost.init({ appid: "vbox.nbdomain.a", debug: true })
         whost.on('session_request', async (appid, request, ret) => {
             const { name, para } = request
             console.log("got request name:", name, " para:", para)
