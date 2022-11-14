@@ -178,7 +178,8 @@ export default class qrModal {
       this.closePopup()
       callback("closed")
     });
-    this.onEvent('click', "#_copy_clipboard", () => {
+    this.onEvent('click', "#_copy_clipboard", (event) => {
+      event.preventDefault();
       navigator.clipboard.writeText(uri).then(() => {
         document.querySelector('#_check_success').style.display = 'inline'
         setTimeout(() => {

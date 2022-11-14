@@ -12,7 +12,7 @@ export default [
         output: {
             file: "wallet.min.js",
             format: "umd",
-            name: 'WalletHost'
+            name: 'dpay'
         },
         plugins: [
             versionInjector(),

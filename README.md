@@ -81,6 +81,10 @@ Home of dwebPay, a framework for payment of dApps and wallet
 - disconnect({walletId})  
   **walletId**: (string) Id of the wallet. Pass null to show the QR code dialog.
 
+- getActiveAddress({walletId}) //get current addresses  
+  **walletId**: (string) Id of the wallet  
+  **return**:{code:0,address:"xxx",chain:"xxx"}
+
 - getAddresses({walletId,chain}) //get all addresses of a chain  
   **walletId**: (string) Id of the wallet  
   **chain**: (string) chain ticker

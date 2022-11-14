@@ -12,7 +12,7 @@ export default [
     output: {
       file: "wapp.min.js",
       format: "umd",
-      name: 'WalletApp'
+      name: 'dPay'
     },
     plugins: [
       versionInjector(),

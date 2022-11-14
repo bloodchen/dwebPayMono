@@ -18,7 +18,7 @@
         async function getBalance() {
             return { code: 0, balance: 11111 }
         }
-        const whost = new WalletHost();
+        const whost = new dpay.WalletHost();
         whost.init({ appid: "vbox.nbdomain.a", debug: true })
         whost.on('session_request', async (appid, request, ret) => {
             const { name, para } = request

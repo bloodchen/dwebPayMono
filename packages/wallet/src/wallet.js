@@ -3,7 +3,7 @@ const g_isBrowser = isBrowser();
 let g_initLib = false
 var fetch = (typeof (window) === 'undefined') ? null : window.fetch;
 import nbpeer from "nbpeer"
-export default class WalletHost {
+export class WalletHost {
     static async initLib() {
         if (!g_initLib) {
             if (!g_isBrowser) {

@@ -48,7 +48,7 @@
     <script src="./wapp.min.js"></script>
 
     <script>
-        const wpay = new WalletApp();
+        const wpay = new dPay.WalletApp();
         const nbnode = "http://localhost:9001" //"https://tnode.nbdomain.com"; //"https://nbnode.maxthon.com"
         wpay.init({ appid: "app1.nbdomain.a", bridge: nbnode, debug: true });
         console.log(wpay);
@@ -61,7 +61,9 @@
             document.querySelector("#result").innerText = result;
         }
         async function connectWallet() {
-            const res = await wpay.connect({ permissions: { chains: ['ar', 'bsv'] } });
+            const PERM = ["ACCESS_ADDRESS", "ACCESS_PUBLIC_KEY", "ACCESS_ACCOUNT", "ACCESS_BALANCE", "SIGN_TRANSACTION", "DISPATCH", "ENCRYPT", "DECRYPT", "SIGN_MESSAGE"]
+
+            const res = await wpay.connect({ permissions: { access: ["ACCESS_ADDRESS", "ACCESS_PUBLIC_KEY"], chains: ['ar', 'bsv'] } });
             console.log(res);
             if (res.code === 0) {
                 walletId = res.wallet_id;

@@ -6,7 +6,8 @@ import nbpeer from "nbpeer"
 
 var qrTermila;
 let log = console.log;
-export default class WalletApp {
+const PERM = ["ACCESS_ADDRESS", "ACCESS_PUBLIC_KEY", "ACCESS_ACCOUNT", "ACCESS_BALANCE", "SIGN_TRANSACTION", "DISPATCH", "ENCRYPT", "DECRYPT", "SIGN_MESSAGE"]
+export class WalletApp {
     constructor() {
         this.lastChecking = 0
         console.log('app@dwebpay: [VI]{version} - {date}[/VI]');
@@ -50,6 +51,12 @@ export default class WalletApp {
         const self = this
         return new Promise(async resolve => {
             const options = { id: this.id, appid: this.appid, permissions }
+            const access = permissions.access
+            if (!access || access.length == 0)
+                return { code: 1, msg: "permissions.access are missing" }
+            for (const elm of access) {
+                if (PERM.indexOf(elm) === -1) return { code: 1, msg: "invalid access:", elm }
+            }
             let res = await this.createSession()
             if (res.code == 0) {
                 this.nbpeer.on('session_notify', (wallet_id, event) => {
@@ -103,6 +110,9 @@ export default class WalletApp {
     async sendTransaction({ walletId, options }) {
         return await this.getResult(walletId, 'sendTransaction', { options })
     }
+    async getActiveAddress({ walletId }) {
+        return await this.getResult(walletId, 'getActiveAddress')
+    }
     async getAddresses({ walletId, chain }) {
         return await this.getResult(walletId, 'getAddresses', { chain })
     }
@@ -114,6 +124,15 @@ export default class WalletApp {
     }
     async decrypt({ walletId, data, address, chain }) {
         return await this.getResult(walletId, 'decrypt', { data, address, chain })
+    }
+    async encrypt({ walletId, data, address, chain }) {
+        return await this.getResult(walletId, 'encrypt', { data, address, chain })
+    }
+    async rsaDecrypt({ walletId, data, address, chain }) {
+        return await this.decrypt({ walletId, data, address, chain })
+    }
+    async rsaEncrypt({ walletId, data, address, chain }) {
+        return await this.encrypt({ walletId, data, address, chain })
     }
     async isConnected({ walletId = null } = {}) {
         if (!walletId) walletId = this.walletId
@@ -183,5 +202,11 @@ export default class WalletApp {
             window.VBox.notify(...argv)
         }
         this.nbpeer.send(walletId, 'notify', ...argv)
+    }
+}
+
+export class ARAdaptor {
+    connect(permissions, appInfo, gateway) {
+        console.log('ARAdaptor.connect:', permissions, appInfo, gateway)
     }
 }

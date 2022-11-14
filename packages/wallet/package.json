@@ -1,6 +1,6 @@
 {
   "name": "@dwebpay/wallet",
-  "version": "1.0.17",
+  "version": "1.0.22",
   "description": "",
   "main": "wallet.min.js",
   "scripts": {

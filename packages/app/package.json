@@ -1,6 +1,6 @@
 {
   "name": "@dwebpay/app",
-  "version": "1.0.19",
+  "version": "1.0.22",
   "description": "decentrolized web payment protocol for dApp",
   "main": "wapp.min.js",
   "scripts": {
