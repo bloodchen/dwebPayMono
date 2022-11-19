@@ -6,7 +6,7 @@ import nbpeer from "nbpeer"
 
 var qrTermila;
 let log = console.log;
-const PERM = ["ACCESS_ADDRESS", "ACCESS_PUBLIC_KEY", "ACCESS_ACCOUNT", "ACCESS_BALANCE", "SIGN_TRANSACTION", "DISPATCH", "ENCRYPT", "DECRYPT", "SIGN_MESSAGE"]
+const PERM = ["ACCESS_ADDRESS", "ACCESS_PUBLIC_KEY", "ACCESS_ACCOUNT", "ACCESS_BALANCE", "SIGN_TRANSACTION", "SEND_TRANSACTION", "ENCRYPT", "DECRYPT", "SIGN_MESSAGE"]
 export class WalletApp {
     constructor() {
         this.lastChecking = 0
@@ -17,7 +17,7 @@ export class WalletApp {
         this.nbNode = bridge
         this.debug = debug
         this.eventCB = {}
-        this.id = Date.now().toString(36)
+
         if (!g_isBrowser) {
             global.fetch = require("cross-fetch")
             qrTermila = require('qrcode-terminal');
@@ -50,6 +50,8 @@ export class WalletApp {
     async connect({ walletId, permissions }) {
         const self = this
         return new Promise(async resolve => {
+            if (!this.id)
+                this.id = Date.now().toString(36)
             const options = { id: this.id, appid: this.appid, permissions }
             const access = permissions.access
             if (!access || access.length == 0)
@@ -97,7 +99,13 @@ export class WalletApp {
             }
         })
     }
-
+    async connectLastWallet() {
+        if (!this.walletId) return false
+        const res = await this.createSession()
+        if (res.code != 0) return false
+        await this.nbpeer.connectTo(this.walletId)
+        return await this.isConnected()
+    }
     async getBalance({ walletId, address, chain }) {
         return await this.getResult(walletId, 'getBalance', { address, chain })
     }
@@ -141,7 +149,7 @@ export class WalletApp {
         if (span > 1000 * 5) {
             this.lastChecking = Date.now()
             if (this.nbpeer.isConnected()) {
-                const res = await this.nbpeer.send(walletId, "ping")
+                const res = await this.nbpeer.send(walletId, "ping", "ping")
                 this.connected = (res === 'pong')
             } else {
                 this.connected = false
@@ -207,6 +215,7 @@ export class WalletApp {
 
 export class ARAdaptor {
     connect(permissions, appInfo, gateway) {
+        if (!this.dpay) this.dpay = new WalletApp()
         console.log('ARAdaptor.connect:', permissions, appInfo, gateway)
     }
 }

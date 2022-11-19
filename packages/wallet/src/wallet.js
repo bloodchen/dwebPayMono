@@ -52,8 +52,8 @@ export class WalletHost {
             peer.on("connectWallet", async (para) => {
                 return await this.connectApp(para)
             })
-            peer.on("ping", () => {
-                return "pong"
+            peer.on("ping", (from_id, ping) => {
+                return ping === 'ping' ? "pong" : "wrong"
             })
             peer.onElse(async (eName, ...argv) => {
                 console.log("got nbpeer event:", eName, ...argv)

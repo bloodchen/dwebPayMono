@@ -27,7 +27,7 @@
 
 <body>
     <div id="q-app">
-        <button onclick="connectWallet()">connectWallet</button>
+        <button onclick="connectWallet()" id="connect">connectWallet</button>
         <p />
         <div>Address:<input id="addressInput" /></div>
         <p></p>
@@ -39,6 +39,9 @@
         <button onclick="runCmd('signTransaction')">signTransaction</button>
         <button onclick="runCmd('sendTransaction')">sendTransaction</button>
         <button onclick="runCmd('decrypt')">decrypt</button>
+        <hr />
+        <button onclick="runCmd('payMulti')">payMuilti</button>
+        <button onclick="runCmd('disconnect')">disconnect</button>
 
         <hr />
         result:
@@ -49,11 +52,17 @@
 
     <script>
         const wpay = new dPay.WalletApp();
-        const nbnode = "http://localhost:9001" //"https://tnode.nbdomain.com"; //"https://nbnode.maxthon.com"
-        wpay.init({ appid: "app1.nbdomain.a", bridge: nbnode, debug: true });
-        console.log(wpay);
         let walletId = null;
-
+        start()
+        async function start() {
+            const nbnode = "https://tnode.nbdomain.com"; //"http://192.168.1.102:9001" //
+            await wpay.init({ appid: "app1.nbdomain.a", bridge: nbnode, debug: true });
+            console.log(wpay);
+            const res = await wpay.connectLastWallet()
+            if (res) {
+                document.querySelector('#connect').innerText = "connected"
+            }
+        }
         function setResult(result) {
             if (typeof result === 'object') {
                 result = JSON.stringify(result)
@@ -61,7 +70,7 @@
             document.querySelector("#result").innerText = result;
         }
         async function connectWallet() {
-            const PERM = ["ACCESS_ADDRESS", "ACCESS_PUBLIC_KEY", "ACCESS_ACCOUNT", "ACCESS_BALANCE", "SIGN_TRANSACTION", "DISPATCH", "ENCRYPT", "DECRYPT", "SIGN_MESSAGE"]
+            const ACCESS = ["ACCESS_ADDRESS", "ACCESS_PUBLIC_KEY", "ACCESS_ACCOUNT", "ACCESS_BALANCE", "SIGN_TRANSACTION", "DISPATCH", "ENCRYPT", "DECRYPT", "SIGN_MESSAGE"]
 
             const res = await wpay.connect({ permissions: { access: ["ACCESS_ADDRESS", "ACCESS_PUBLIC_KEY"], chains: ['ar', 'bsv'] } });
             console.log(res);
@@ -126,6 +135,17 @@
                 console.log("enc:", enc)
                 result = await wpay.decrypt({ data: enc, address, chain });
                 console.log("dec:", result)
+            }
+            if (cmd === "payMulti") {
+                const options = {
+                    to: [{ address: "pJU9Ab9ugJAMuTFghZ_fLh58CZjJ1iAXZrgMzn9Zpnw", value: 1000 }, { address: "d9NfvYFjNnrx9IMPc0ZlsTXwTsR5m817YkmhAtdxHYk", value: 1000 }],
+                    payer: address,
+                    chain: 'ar'
+                }
+                result = await wpay.sendTransaction({ options });
+            }
+            if (cmd === 'disconnect') {
+                wpay.disconnect()
             }
             setResult(result);
         }
