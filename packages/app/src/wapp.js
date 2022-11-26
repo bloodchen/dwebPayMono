@@ -22,15 +22,21 @@ export class WalletApp {
             global.fetch = require("cross-fetch")
             qrTermila = require('qrcode-terminal');
         }
-        const res = await fetch(bridge + "/api/q/" + appid)
+        const res = await fetch(bridge + "/api/?nid=" + appid)
         if (res.ok) {
             this.meta = await res.json()
+            this.meta = JSON.parse(this.meta.obj.v)
         } else {
             console.error("can't fetch:", appid, "from:", bridge)
             return false
         }
-        if (this.meta.allowSite && !debug) { //
-            const cursite = window.location.href
+        if (this.meta.allowDomains && !debug) { //
+            for (const rule of this.meta.allowDomains) {
+                if (!this.isAllowedSite(rule, window.location.href)) {
+                    console.error("The app is not allow on this site")
+                    return false
+                }
+            }
         }
         this.walletId = localStorage.getItem("walletId")
         this.nbpeer = new nbpeer()
@@ -46,7 +52,16 @@ export class WalletApp {
         })
         return true
     }
-
+    isAllowedSite(rule, url) {
+        const u = new URL(url)
+        let domain = ''
+        if (u.hostname === 'localhost' || u.hostname === '127.0.0.1') {
+            domain = u.pathname.split('/')[1]
+        } else {
+            domain = u.hostname
+        }
+        return (domain === rule) || (domain.slice(-(rule.length + 1)) === '.' + rule)
+    }
     async connect({ walletId, permissions }) {
         const self = this
         return new Promise(async resolve => {
@@ -96,6 +111,8 @@ export class WalletApp {
                 } else { //node envirment, show terminal qrcode
                     qrTermila.generate(uri, { small: true });
                 }
+            } else {
+                console.error(res)
             }
         })
     }
@@ -103,6 +120,7 @@ export class WalletApp {
         if (!this.walletId) return false
         const res = await this.createSession()
         if (res.code != 0) return false
+        this.id = this.nbpeer.id
         await this.nbpeer.connectTo(this.walletId)
         return await this.isConnected()
     }

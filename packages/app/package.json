@@ -1,6 +1,6 @@
 {
   "name": "@dwebpay/app",
-  "version": "1.0.27",
+  "version": "1.0.30",
   "description": "decentrolized web payment protocol for dApp",
   "main": "wapp.min.js",
   "scripts": {
@@ -21,18 +21,18 @@
   "dependencies": {
     "@dwebpay/qrModal": "workspace:1.0.2",
     "axios": "^0.21.4",
-    "core-js": "^3.26.0",
+    "core-js": "^3.26.1",
     "cross-fetch": "^3.1.5",
     "eccrypto-js": "^5.4.0",
-    "nbpeer": "^1.0.51",
+    "nbpeer": "^1.0.52",
     "qrcode-terminal": "^0.12.0",
-    "regenerator-runtime": "^0.13.10",
+    "regenerator-runtime": "^0.13.11",
     "rollup-plugin-version-injector": "^1.3.3",
-    "socket.io-client": "^4.5.3"
+    "socket.io-client": "^4.5.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.19.6",
-    "@babel/preset-env": "^7.19.4",
+    "@babel/core": "^7.20.2",
+    "@babel/preset-env": "^7.20.2",
     "@rollup/plugin-babel": "^5.3.1",
     "@rollup/plugin-commonjs": "^21.1.0",
     "@rollup/plugin-node-resolve": "^13.3.0",
